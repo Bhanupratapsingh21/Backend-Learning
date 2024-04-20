@@ -7,3 +7,4 @@ class ApiResponse {
         // read about stats code on docs yh kisse kise k hai or useage's
     }
 }
+export { ApiResponse }
