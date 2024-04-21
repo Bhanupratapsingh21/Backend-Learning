@@ -2,7 +2,7 @@ import { asyncHandeler } from "../utils/asynchandeler.js";
 import {ApiError} from "../utils/apierror.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import {ApiResponse} from '../utils/apiresponse.js'
+import { ApiResponse } from '../utils/apiresponse.js'
 
 const registerUser = asyncHandeler( async (req,res)=>{
     // get data from user like email ,avatar
@@ -17,7 +17,7 @@ const registerUser = asyncHandeler( async (req,res)=>{
     // return res
 
     const {username , fullname,email, password } =  req.body
-    console.log('email' , email)
+    console.log('email' , email) 
     if(
         [fullname , username,email,password].some((field)=> field?.trim()=== "")
     ) {
@@ -29,7 +29,7 @@ const registerUser = asyncHandeler( async (req,res)=>{
     })
 
     if(exitedUser){
-        throw new ApiError(400 , 'User with Email or Username already exists')
+        throw new ApiError(409 , 'User with Email or Username already exists')
     }
 
     const avatarlocalpath = req.files?.avatar[0]?.path
