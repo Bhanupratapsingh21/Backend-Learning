@@ -16,31 +16,38 @@ const registerUser = asyncHandeler( async (req,res)=>{
     // checl fpr user creation
     // return res
 
-    const {username , fullname,email, password } =  req.body
-    console.log('email' , email) 
+    const {username , fullname,email, password } = req.body
+    console.log(req.body)
     if(
         [fullname , username,email,password].some((field)=> field?.trim()=== "")
     ) {
         throw new ApiError(400,"All Fields are required")
     }
-
-    const exitedUser =  User.findOne({
+    // await here
+    const exitedUser = await User.findOne({
         $or: [{username},{email}]
     })
-
+    
     if(exitedUser){
         throw new ApiError(409 , 'User with Email or Username already exists')
     }
 
     const avatarlocalpath = req.files?.avatar[0]?.path
-    const coverImagelocalpath = req.files?.coverImage[0]?.path;
+    // const coverImagelocalpath = req.files?.coverimage[0]?.path;
+    let coverImagelocalpath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0 ){
+        coverImagelocalpath =req.files.coverImage[0].path
+    }
+
+    // console.log(req.files);
+
     if(!avatarlocalpath){
         throw new ApiError(400, "Avatar File is Required")
     }
 
     const avatar = await uploadOnCloudinary(avatarlocalpath)
     const coverImage = await uploadOnCloudinary(coverImagelocalpath)
-
+    // console.log(avatar)
     if(!avatar){
         throw new ApiError(400, "Avatar File is Required")
     }
