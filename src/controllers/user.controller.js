@@ -18,7 +18,7 @@ const genrateAccessandRefreshtokens = async(userid) => {
        return { accessToken , refreshToken }
 
     } catch (error) {
-        throw new ApiError(500,error,"Something Want Wrong While Genrateing refreash tokens")
+        throw new ApiError(500,"Something Want Wrong While Genrateing refreash tokens")
     }
 }
 
