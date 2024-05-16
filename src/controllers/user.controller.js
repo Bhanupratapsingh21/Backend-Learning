@@ -12,7 +12,7 @@ const genrateAccessandRefreshtokens = async (userid) => {
         const accessToken = user.genrateAccessToken()
         const refreshToken = user.genrateRefreshToken()
 
-        user.refreshtoken = refreshToken
+        user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
 
         return { accessToken, refreshToken }
@@ -99,7 +99,7 @@ const registerUser = asyncHandeler(async (req, res) => {
 const loginUser = asyncHandeler(async (req, res) => {
     // get data from req.body
     // username or email
-    // find the user in db 
+    // find the user in db
     // check password 
     // if password wrong send wrong 
     // if right gen access or refreash token's
@@ -119,8 +119,8 @@ const loginUser = asyncHandeler(async (req, res) => {
         throw new ApiError(404, "User Does Not Exist")
     }
 
-    const ispasswordvaild = await user.isPasswordCorrect(password)
-
+    const ispasswordvaild = await User.isPasswordCorrect(password)
+    
     if (!ispasswordvaild) {
         throw new ApiError(401, "Invaild User Creadetials")
     }
@@ -334,5 +334,4 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-
 }
