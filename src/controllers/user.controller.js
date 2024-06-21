@@ -120,7 +120,7 @@ const loginUser = asyncHandeler(async (req, res) => {
     }
 
     const ispasswordvaild = await User.isPasswordCorrect(password)
-    
+
     if (!ispasswordvaild) {
         throw new ApiError(401, "Invaild User Creadetials")
     }
