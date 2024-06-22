@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/apiresponse.js'
 import jwt from "jsonwebtoken"
+import { Subscription } from "../models/subscription.model.js";
 
 const genrateAccessandRefreshtokens = async (userid) => {
     try {
@@ -242,7 +243,7 @@ const changeCurrentPassword = asyncHandeler(async (req, res) => {
 
 const getCurrentUser = asyncHandeler(async (req, res) => {
     return res.status(200)
-        .json(200, req.user, "Current User Fatced Success")
+        .json(new ApiResponse(200, req.user, "Current User Fatced Success"))
 })
 
 const updateAccountDetails = asyncHandeler(async (req, res) => {
@@ -309,7 +310,7 @@ const updateUserCoverImage = asyncHandeler(async (req, res) => {
         throw new ApiError(400, "Error While Uploading on avatar")
     }
 
-
+    // DELETE OLD AVATAR ASSIMENT 
 
     const user = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
@@ -321,6 +322,77 @@ const updateUserCoverImage = asyncHandeler(async (req, res) => {
     return res
         .status(200)
         .json(new ApiResponse(200, user, "Coverimage updated"))
+
+})
+
+const GetUserChannalProfile = asyncHandeler(async(req,res)=> {
+    const {username } = req.username
+    if(!username?.trim){
+        throw new ApiError(400,"username Is Missing")
+    }
+
+    const channal = await User.aggregate([
+        {
+            $match: {
+                username : username?.toLowerCase()
+            }
+        },
+        {
+            $lookup: {
+                from : "subscriptions",
+                localField : "_id",
+                foreignField: "channel",
+                as:"subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from : "subscriptions",
+                localField : "_id",
+                foreignField: "subscriber",
+                as:"subscribedTo"
+            }
+        },
+        {
+            $addFields:{
+                subscriberCount :{
+                    $size : "$subscribers"
+                },
+                channalsSubscribedToCount: {
+                    $size : "$subscribedTo"
+                },
+                isSubscribed : {
+                    $cond:{
+                        if:{$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then : true,
+                        else:false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                fullName : 1,
+                username : 1,
+                subscriberCount:1,
+                channalsSubscribedToCount:1,
+                avatar : 1,
+                coverImage : 1,
+                email : 1 ,
+            }
+        }
+    ])
+
+    if(!channal?.length){
+        throw new ApiError(400, "Channal Does Not Exists")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,channal[0], "User Channal Fetched Successfully")
+    )
+
 
 })
 
