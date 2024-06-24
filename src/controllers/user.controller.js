@@ -3,8 +3,11 @@ import { ApiError } from "../utils/apierror.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/apiresponse.js'
-import jwt from "jsonwebtoken"
+import jwt, { verify } from "jsonwebtoken"
 import { Subscription } from "../models/subscription.model.js";
+import mongoose from "mongoose";
+import router from "../routes/user.routes.js";
+import { verifyjwt } from "../middlewares/auth.middleware.js";
 
 const genrateAccessandRefreshtokens = async (userid) => {
     try {
@@ -396,6 +399,59 @@ const GetUserChannalProfile = asyncHandeler(async(req,res)=> {
 
 })
 
+const getWatchHistory = asyncHandeler(async (req,res)=>{
+    const user = await User.aggregate([
+        {
+            $match : {
+                _id :  new mongoose.Types.ObjectId(req.user._id)
+
+            }
+        },
+        {
+            $lookup : {
+                from : "Video",
+                localField : "watchHistory",
+                foreignField : "_id",
+                as: "watchHistory",
+                pipeline : [
+                    {
+                        $lookup : {
+                            from : "users",
+                            localField : "owner",
+                            foreignField : "_id",
+                            as : "owner",
+                            pipeline : [
+                                {
+                                    $project : {
+                                        fullName : 1,
+                                        username : 1,
+                                        avater : 1,
+                                    }
+                                },
+                                {
+                                    $addFields : {
+                                        owner : {
+                                            $first : "$owner",
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res.status(200)
+    .json(new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "Watch History Fetched Successfully"
+    ))
+})
+
+
 export {
     registerUser,
     loginUser,
@@ -406,4 +462,6 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    getWatchHistory,
+    GetUserChannalProfile
 }
