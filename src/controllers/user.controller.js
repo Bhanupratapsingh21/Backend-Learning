@@ -3,7 +3,7 @@ import { ApiError } from "../utils/apierror.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/apiresponse.js'
-import jwt, { verify } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import { Subscription } from "../models/subscription.model.js";
 import mongoose from "mongoose";
 import router from "../routes/user.routes.js";
@@ -12,7 +12,6 @@ import { verifyjwt } from "../middlewares/auth.middleware.js";
 const genrateAccessandRefreshtokens = async (userid) => {
     try {
         const user = await User.findById(userid)
-
         const accessToken = user.genrateAccessToken()
         const refreshToken = user.genrateRefreshToken()
 
@@ -163,8 +162,8 @@ const loginUser = asyncHandeler(async (req, res) => {
 const logoutUser = asyncHandeler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
