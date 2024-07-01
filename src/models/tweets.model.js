@@ -5,13 +5,31 @@ const TweetSchema = new Schema({
         type: String,
         required: true
     },
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    }
+    coverImageURL: {
+        url: {
+            type: String,
+            required: true,
+        },
+        public_id: {
+            type: String,
+            required: true,
+        }
+    },
+    createdBy: {
+        _id: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+        username: {
+            type: String
+        },
+        profileimg: {
+            type: String
+        }
+    },
 },
-{
-    timestamps: true
-})
+    {
+        timestamps: true
+    })
 
 export const Tweet = mongoose.model("Tweet", TweetSchema)
