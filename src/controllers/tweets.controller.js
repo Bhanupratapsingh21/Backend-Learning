@@ -1,13 +1,14 @@
-import { Tweet } from "../models/tweets.model";
-import { uploadOnCloudinary, deletefromcloudinary } from "../utils/cloudinary";
-import { asyncHandeler } from "../utils/asynchandeler";
-import { ApiError } from "../utils/apierror";
-import { ApiResponse } from "../utils/apiresponse";
+import { Tweet } from "../models/tweets.model.js";
+import { uploadOnCloudinary, deletefromcloudinary } from "../utils/cloudinary.js";
+import { asyncHandeler } from "../utils/asynchandeler.js";
+import { ApiError } from "../utils/apierror.js";
+import { ApiResponse } from "../utils/apiresponse.js";
+import verifypostowner from "../utils/checkforpostowner.js";
 
 const handleaddblogs = asyncHandeler(async (req, res) => {
     try {
         // Check if profile image file exists
-        const profileImgPath = req.files?.profileimg?.[0]?.path;
+        const profileImgPath = req.files?.tweetthumbnail?.[0]?.path;
         const { content } = req.body;
 
         if (!content) {
@@ -32,7 +33,7 @@ const handleaddblogs = asyncHandeler(async (req, res) => {
             createdBy: {
                 _id: req.user._id,
                 username: req.user.username,
-                profileimg: req.user.avatar,
+                profileimg: req.user.avatar.url,
             },
         });
 
@@ -69,8 +70,23 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
 
 const updateeditblogs = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
+
     try {
-        const profileImgPath = req.files?.profileimg?.[0]?.path;
+        const lastblog = await Tweet.findById(_id);
+        if (!lastblog) {
+            return res
+                .status(404)
+                .json(new ApiError(404, {}, "This Tweet Not Found"));
+        }
+
+        // check the owner and current user is same or not 
+        const verifyowner = verifypostowner(lastblog.createdBy._id, req.user._id)
+
+        if (!verifyowner) {
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Blog"))
+        }
+
+        const profileImgPath = req.files?.tweetthumbnail?.[0]?.path;
         const { content } = req.body;
 
         // Initialize blogsdata with the necessary fields
@@ -79,15 +95,15 @@ const updateeditblogs = asyncHandeler(async (req, res) => {
             createdBy: {
                 _id: req.user._id,
                 username: req.user.username,
-                profileimg: req.user.avatar,
+                profileimg: req.user.avatar.url,
             }
         };
 
         if (profileImgPath) {
             const uploadedImage = await uploadOnCloudinary(profileImgPath);
-            const lastblogimage = await Tweet.findById(_id);
-            if (lastblogimage && lastblogimage.coverImageURL && lastblogimage.coverImageURL.public_id) {
-                await deletefromcloudinary(lastblogimage.coverImageURL.public_id);
+
+            if (lastblog && lastblog.coverImageURL && lastblog.coverImageURL.public_id) {
+                await deletefromcloudinary(lastblog.coverImageURL.public_id);
             }
 
             if (!uploadedImage) {
@@ -115,7 +131,23 @@ const updateeditblogs = asyncHandeler(async (req, res) => {
 
 const deleteblogs = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
+
     try {
+        // checking for user then 
+        const lastblog = await Tweet.findById(_id);
+        if (!lastblog) {
+            return res
+                .status(404)
+                .json(new ApiError(404, {}, "This Tweet Not Found"));
+        }
+
+        // check the owner and current user is same or not 
+        const verifyowner = verifypostowner(lastblog.createdBy._id, req.user._id)
+
+        if (!verifyowner) {
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Blog"))
+        }
+
         const blogsresult = await Tweet.findByIdAndDelete(_id);
         if (!blogsresult) {
             return res.status(404).json(new ApiResponse(404, {}, "Can't Find The Blog By ID"));

@@ -8,7 +8,7 @@ export const verifyjwt = asyncHandeler(async (req ,res , next)=>{
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
     
         if(!token){
-            throw new ApiError(401 , "Unauthorized Req")
+            res.status(401).json(new ApiError(401 ,{} ,"Unauthorized Req"));
         }
     
         const decodedToken =  jwt.verify(token , process.env.ACCESS_TOKEN_SECRET)
@@ -18,13 +18,15 @@ export const verifyjwt = asyncHandeler(async (req ,res , next)=>{
     
         if(!user){
             // 
-            throw new ApiError(401,"Invaild Access Token")
+            res.status(401).json(new ApiError(401 ,{} ,"Invaild Access Token"));
+           // throw new ApiError(401,"")
         }
     
         req.user = user;
         next()
     } catch (error) {
-        throw new ApiError(401,error?.message || "Invaild Access Token")
+        res.status(401).json(new ApiError(401 ,{} ,"Invaild Access Token"));
+        // throw new ApiError(401,error?.message || "Invaild Access Token")
     }
 
 })
