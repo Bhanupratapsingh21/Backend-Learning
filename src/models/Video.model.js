@@ -12,7 +12,7 @@ const VideoSchema = new Schema(
             type : String ,// clodernary url
             required : true,
         },
-        Tittle : {
+        tittle : {
             type : String , 
             required : true,
         },
@@ -31,6 +31,9 @@ const VideoSchema = new Schema(
         isPublished : {
             type : Boolean,
             default : true
+        },
+        tegs : {
+            type : String
         },
         owner : {
             type : Schema.Types.ObjectId,

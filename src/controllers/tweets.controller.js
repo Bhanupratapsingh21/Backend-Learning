@@ -68,6 +68,45 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
     }
 });
 
+const getblogsAdv = asyncHandeler(async (req,res)=>{
+    // first get the data from params and quarrys   
+    const { q, limit } = req.query;
+    let sortOption = {};
+    if (q === "newestfirst") {
+        sortOption = { createdAt: -1 };
+    } else if (q === 'oldestfirst') {
+        sortOption = { createdAt: 1 };
+    }   
+
+    // then added a sortoption to sort it ar the oldest first and newst first
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const blogs = await Tweet.find()
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limitOptions);
+
+        const totalBlogs = await Tweet.countDocuments();
+        const totalPages = Math.ceil(totalBlogs / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalPages,
+            totalBlogs,
+            blogs
+        }, "Latest Tweets Fetched Successfully"));
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
+
+})
+
 const updateeditblogs = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
 
