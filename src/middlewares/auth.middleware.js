@@ -5,10 +5,10 @@ import { User } from "../models/user.model.js";
 
 export const verifyjwt = asyncHandeler(async (req ,res , next)=>{
     try {
-        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
+        const token =  req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer"," ")
     
         if(!token){
-            res.status(401).json(new ApiError(401 ,{} ,"Unauthorized Req"));
+            return res.status(401).json(new ApiError(401 ,{} ,"Unauthorized Req"));
         }
     
         const decodedToken =  jwt.verify(token , process.env.ACCESS_TOKEN_SECRET)
@@ -18,7 +18,7 @@ export const verifyjwt = asyncHandeler(async (req ,res , next)=>{
     
         if(!user){
             // 
-            res.status(401).json(new ApiError(401 ,{} ,"Invaild Access Token"));
+           return res.status(401).json(new ApiError(401 ,{} ,"Invaild Access Token"));
            // throw new ApiError(401,"")
         }
     

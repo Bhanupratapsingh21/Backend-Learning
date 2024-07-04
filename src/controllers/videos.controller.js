@@ -19,13 +19,23 @@ const handleuploadvideo = asyncHandeler(async(req,res)=>{
         .status(400)
         .json(new ApiError(400, {}, "All Field Required Atleast Tittle and Descriptions"))
     }
-    console.log("done")
-    const videofilelocal = req.files?.videofile[0]?.path 
-    const thumbnaillocal = req.files?.thumbnail[0]?.path 
+    
+
+    let videofilelocal;
+    if(req.files && Array.isArray(req.files.videofile)&& req.files.videofile.length > 0){
+        videofilelocal = req.files.videofile[0]?.path
+    }
+
+    let thumbnaillocal;
+    if(req.files && Array.isArray(req.files.thumbnail)&& req.files.thumbnail.length > 0){
+        thumbnaillocal = req.files.thumbnail[0]?.path
+    }
+
     // console.log(videofile, thumbnail)
     if(!videofilelocal || !thumbnaillocal){
         return res.status(401).json(new ApiError(401,{},"Video File And Thumbnail Are Required"))
     }
+    // console.log("done")
     const videofile = await uploadOnCloudinary(videofilelocal);
     const thumbnail = await uploadOnCloudinary(thumbnaillocal);
 
