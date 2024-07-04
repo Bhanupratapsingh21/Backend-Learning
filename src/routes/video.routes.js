@@ -1,7 +1,11 @@
 import { 
     handleuploadvideo,
     handlegetvideosbytimeline,
-    handlegetvideoadv
+    handlegetvideoadv,
+    handlegetVideoById,
+    handlegetvideobytegs,
+    handledeleteVideo
+
 } from "../controllers/videos.controller.js";
 import { Router } from "express"
 import { verifyjwt } from "../middlewares/auth.middleware.js";
@@ -22,6 +26,11 @@ Videorouter.post("/addvideo", verifyjwt, upload.fields(
     ]
 ),handleuploadvideo);
 
-Videorouter.get("/getvideos",handlegetvideosbytimeline)
-Videorouter.get("/getvideosadv" , handlegetvideoadv)
+
+Videorouter.get("/getvideos",handlegetvideosbytimeline);
+Videorouter.get("/getvideosadv" , handlegetvideoadv);
+Videorouter.get("/getvideo/:id" ,handlegetVideoById);
+Videorouter.get("/getvideobytegs", handlegetvideobytegs);
+Videorouter.delete("/deletevideo/:id",verifyjwt,handledeleteVideo)
+
 export default Videorouter

@@ -189,7 +189,7 @@ const deleteblogs = asyncHandeler(async (req, res) => {
 
         const blogsresult = await Tweet.findByIdAndDelete(_id);
         if (!blogsresult) {
-            return res.status(404).json(new ApiResponse(404, {}, "Can't Find The Blog By ID"));
+            return res.status(404).json(new ApiResponse(404, {}, "Some Error Occerd While Deleteing Video"));
         }
         const resdeletefromcloudinary = await deletefromcloudinary(blogsresult?.coverImageURL?.public_id);
         return res.status(200).json(new ApiResponse(200, {}, "Blog Deleted Successfully"));
