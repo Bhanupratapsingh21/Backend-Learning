@@ -1,5 +1,7 @@
 import { 
-    handleuploadvideo
+    handleuploadvideo,
+    handlegetvideosbytimeline,
+    handlegetvideoadv
 } from "../controllers/videos.controller.js";
 import { Router } from "express"
 import { verifyjwt } from "../middlewares/auth.middleware.js";
@@ -20,4 +22,6 @@ Videorouter.post("/addvideo", verifyjwt, upload.fields(
     ]
 ),handleuploadvideo);
 
+Videorouter.get("/getvideos",handlegetvideosbytimeline)
+Videorouter.get("/getvideosadv" , handlegetvideoadv)
 export default Videorouter

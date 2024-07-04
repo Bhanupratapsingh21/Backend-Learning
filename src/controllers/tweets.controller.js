@@ -70,7 +70,7 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
 
 const getblogsAdv = asyncHandeler(async (req,res)=>{
     // first get the data from params and quarrys   
-    const { q, limit } = req.query;
+    const { q, limit,page } = req.query;
     let sortOption = {};
     if (q === "newestfirst") {
         sortOption = { createdAt: -1 };
@@ -221,4 +221,5 @@ export {
     updateeditblogs,
     deleteblogs,
     handlegetindividualblog,
+    getblogsAdv,
 };

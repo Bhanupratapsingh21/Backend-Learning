@@ -64,9 +64,76 @@ const handleuploadvideo = asyncHandeler(async(req,res)=>{
     .status(201)
     .json(new ApiResponse(201,UploadedVideo,"Video Uploaded SuccessFully"));
 
+});
+
+const handlegetvideosbytimeline = asyncHandeler(async(req,res)=>{
+    
+    const {q , limit} = req.query;
+    let sortOption = {}
+    if(q === "newestfirst"){
+        sortOption = { createdAt : -1 };
+    }else if(q === "oldestfirst"){
+        sortOption = {createdAt : 1};
+    }else{
+        return res.status(301).json(new ApiError(301,{},"Invaild Request"))
+    }
+    const limitOptions = parseInt(limit) || 10; // limit to send 
+
+    try {
+        const videos = await Video.find().sort(sortOption).limit(limitOptions)
+        if(!videos){
+            return res.status(501).json(new ApiError(501, {}, "Server And Database Error pls Try Again After Some Months"))
+        }
+        return res.status(200).json(new ApiResponse(200,videos,`Video Fetched SuccessFully With Sorted by ${q}`))
+    } catch (error) {
+        console.error('Error fetching Video:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
+
+});
+
+const handlegetvideoadv = asyncHandeler(async(req,res)=>{
+    // first get the data from params and quarrys   
+    const { q, limit , page} = req.query;
+    let sortOption = {};
+    if (q === "newestfirst") {
+        sortOption = { createdAt: -1 };
+    } else if (q === 'oldestfirst') {
+        sortOption = { createdAt: 1 };
+    }   
+
+    // then added a sortoption to sort it ar the oldest first and newst first
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const videos = await Video.find()
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limitOptions);
+
+        const totalVideos = await Video.countDocuments();
+        const totalPages = Math.ceil(totalVideos / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalPages,
+            totalVideos,
+            videos
+        }, "Latest Tweets Fetched Successfully"));
+    } catch (error) {
+        console.error('Error fetching blogs:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
+
 })
 
 
 export {
+    handlegetvideosbytimeline,
     handleuploadvideo,
+    handlegetvideoadv,
 }
