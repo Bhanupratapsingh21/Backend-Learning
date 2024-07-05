@@ -4,7 +4,8 @@ import {
     handlegetvideoadv,
     handlegetVideoById,
     handlegetvideobytegs,
-    handledeleteVideo
+    handledeleteVideo,
+    togglePublishStatus
 
 } from "../controllers/videos.controller.js";
 import { Router } from "express"
@@ -32,5 +33,6 @@ Videorouter.get("/getvideosadv" , handlegetvideoadv);
 Videorouter.get("/getvideo/:id" ,handlegetVideoById);
 Videorouter.get("/getvideobytegs", handlegetvideobytegs);
 Videorouter.delete("/deletevideo/:id",verifyjwt,handledeleteVideo)
+Videorouter.get("/updateisPublished/:id", verifyjwt, togglePublishStatus);
 
 export default Videorouter

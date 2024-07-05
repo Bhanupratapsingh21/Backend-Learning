@@ -3,7 +3,7 @@ import { asyncHandeler } from "../utils/asynchandeler.js";
 import { ApiError } from "../utils/apierror.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import { Video } from "../models/Video.model.js";
-import { deletefromcloudinary,videodeletefromcloudinary ,uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deletefromcloudinary, videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import verifypostowner from "../utils/checkforpostowner.js";
 
 const handleuploadvideo = asyncHandeler(async (req, res) => {
@@ -188,19 +188,38 @@ const handledeleteVideo = asyncHandeler(async (req, res) => {
     }
     const videopublicid = extractIdfromurl(deletedvideo.videoFile)
     const thumbnailpublicid = extractIdfromurl(deletedvideo.thumbnail)
-    console.log(videopublicid)
-    console.log(thumbnailpublicid)
+    // console.log(videopublicid)
+    // console.log(thumbnailpublicid)
     const videodeletefromcloud = await videodeletefromcloudinary(videopublicid)
     const thumbnaildeletefromcloud = await deletefromcloudinary(thumbnailpublicid)
 
-    console.log(videodeletefromcloud, thumbnaildeletefromcloud)
+    // console.log(videodeletefromcloud, thumbnaildeletefromcloud)
 
     return res.status(200).json(new ApiResponse(200, {}, "Video Deleted SuccssFully"))
 
 })
 
 const togglePublishStatus = asyncHandeler(async (req, res) => {
-    const { videoId } = req.params
+    const videoId  = req.params.id
+    if (!videoId) {
+        return res.status(401).json(new ApiError(401, {}, "Please Provide Video Id"))
+    }
+
+    const video = await Video.findById(videoId)
+    if (!video) return res.stauts(404).json(404, {}, "Your Requested Video Not Founded")
+
+    const verifyowner = verifypostowner(video.owner, req.user._id);
+    if (!verifyowner) {
+        return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Video"))
+    }
+
+
+    video.isPublished = !video.isPublished // toggle the value
+    const response = await video.save();
+    if (!response) return res.status(501).json(new ApiError(501, {}, "Failed To Update Status Please try Again"))
+
+    return res.status(201).json(new ApiResponse(201, {}, "Status Set SuccessFully"))
+
 })
 
 const extractIdfromurl = (url) => {
