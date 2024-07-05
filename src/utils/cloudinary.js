@@ -36,11 +36,11 @@ const uploadOnCloudinary = async (localFilePath) => {
         throw error;
     }
 };
-
+// { resource_type: "video" }
 const deletefromcloudinary = async (public_id) => {
     try {
         const response = await cloudinary.uploader.destroy(public_id, { invalidate: true });
-        // console.log('Delete response:', response);
+        console.log('Delete response:', response);
         return response;
     } catch (error) {
         console.error('Error deleting from Cloudinary:', error);
@@ -48,4 +48,18 @@ const deletefromcloudinary = async (public_id) => {
     }
 };
 
-export { uploadOnCloudinary, deletefromcloudinary } 
+const videodeletefromcloudinary = async (public_id) => {
+    try {
+        const response = await cloudinary.uploader.destroy(public_id, { 
+            invalidate: true,
+            resource_type: "video" 
+        });
+        console.log('Delete response:', response);
+        return response;
+    } catch (error) {
+        console.error('Error deleting from Cloudinary:', error);
+        throw error;
+    }
+};
+
+export { uploadOnCloudinary, deletefromcloudinary ,videodeletefromcloudinary} 

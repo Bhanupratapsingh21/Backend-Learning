@@ -1,7 +1,7 @@
 import { asyncHandeler } from "../utils/asynchandeler.js";
 import { ApiError } from "../utils/apierror.js";
 import { User } from "../models/user.model.js";
-import { deletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deletefromcloudinary,videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/apiresponse.js'
 import jwt from "jsonwebtoken"
 import { Subscription } from "../models/subscription.model.js";

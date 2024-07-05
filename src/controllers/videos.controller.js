@@ -3,7 +3,7 @@ import { asyncHandeler } from "../utils/asynchandeler.js";
 import { ApiError } from "../utils/apierror.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import { Video } from "../models/Video.model.js";
-import { deletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deletefromcloudinary,videodeletefromcloudinary ,uploadOnCloudinary } from "../utils/cloudinary.js";
 import verifypostowner from "../utils/checkforpostowner.js";
 
 const handleuploadvideo = asyncHandeler(async (req, res) => {
@@ -124,7 +124,7 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
             totalPages,
             totalVideos,
             videos
-        }, "Latest Tweets Fetched Successfully"));
+        }, "Latest Videos Fetched Successfully"));
     } catch (error) {
         console.error('Error fetching blogs:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
@@ -171,31 +171,31 @@ const updateVideodetails = asyncHandeler(async (req, res) => {
 })
 
 const handledeleteVideo = asyncHandeler(async (req, res) => {
-    const _id  = req.params.id
-    
+    const _id = req.params.id
+
     const video = await Video.findById(_id);
-    if(!video) return res.status(404).json(new ApiError(404, {},"Your Requested Video Not Founded"));
-    console.log(video.owner)
-    console.log(req.user._id)
-    const verifyowner = verifypostowner(video.owner,req.user._id);
+    if (!video) return res.status(404).json(new ApiError(404, {}, "Your Requested Video Not Founded"));
+    // console.log(video.owner)
+    // console.log(req.user._id)
+    const verifyowner = verifypostowner(video.owner, req.user._id);
     if (!verifyowner) {
         return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Video"))
     }
 
     const deletedvideo = await Video.findByIdAndDelete(_id)
-    if(!deletedvideo){
+    if (!deletedvideo) {
         return res.status(404).json(new ApiResponse(404, {}, "Some Error Occerd While Deleteing Video"));
     }
     const videopublicid = extractIdfromurl(deletedvideo.videoFile)
-    const thumbnailpublicid = extractIdfromurl(deletedvideo.thumbnail) 
-    console.log(deletedvideo.thumbnail)
+    const thumbnailpublicid = extractIdfromurl(deletedvideo.thumbnail)
+    console.log(videopublicid)
     console.log(thumbnailpublicid)
-    const videodeletefromcloud = await deletefromcloudinary(videopublicid)
+    const videodeletefromcloud = await videodeletefromcloudinary(videopublicid)
     const thumbnaildeletefromcloud = await deletefromcloudinary(thumbnailpublicid)
 
-    console.log(videodeletefromcloud,thumbnaildeletefromcloud)
+    console.log(videodeletefromcloud, thumbnaildeletefromcloud)
 
-    return res.status(200).json(new ApiResponse(200,{},"Video Deleted SuccssFully"))
+    return res.status(200).json(new ApiResponse(200, {}, "Video Deleted SuccssFully"))
 
 })
 
@@ -204,10 +204,10 @@ const togglePublishStatus = asyncHandeler(async (req, res) => {
 })
 
 const extractIdfromurl = (url) => {
-    const regex = /\/([^\/]+)\.avi$/;
+    const regex = /\/([^\/]+)\.[a-zA-Z0-9]+$/;
     const match = url.match(regex);
     return match ? match[1] : null;
-  };
+};
 
 export {
     handlegetvideosbytimeline,
