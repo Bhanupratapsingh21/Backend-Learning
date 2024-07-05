@@ -94,7 +94,6 @@ const handlegetvideosbytimeline = asyncHandeler(async (req, res) => {
 });
 
 const handlegetvideoadv = asyncHandeler(async (req, res) => {
-    // first get the data from params and quarrys   
     const { q, limit, page } = req.query;
     let sortOption = {};
     if (q === "newestfirst") {
@@ -103,19 +102,19 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
         sortOption = { createdAt: 1 };
     }
 
-    // then added a sortoption to sort it ar the oldest first and newst first
 
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
 
     try {
-        const videos = await Video.find()
+        const videos = await Video.find({ isPublished: true })
             .sort(sortOption)
             .skip(skip)
             .limit(limitOptions);
 
-        const totalVideos = await Video.countDocuments();
+        // Count the total number of published videos
+        const totalVideos = await Video.countDocuments({ isPublished: true });
         const totalPages = Math.ceil(totalVideos / limitOptions);
 
         return res.status(200).json(new ApiResponse(200, {
@@ -126,7 +125,7 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
             videos
         }, "Latest Videos Fetched Successfully"));
     } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.error('Error fetching videos:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
 
@@ -144,29 +143,100 @@ const handlegetVideoById = asyncHandeler(async (req, res) => {
 })
 
 const handlegetvideobytegs = asyncHandeler(async (req, res) => {
+
     const { tegs } = req.body
     if (!tegs) return res.status(401).json(new ApiError(401, {}, "please provide Atleast One Teg"))
-
     const tagsarry = tegs.split(',').map(tag => tag.trim())
 
-    // console.log(tegs)
+    const { q, limit, page } = req.query;
+    let sortOption = {};
+    if (q === "newestfirst") {
+        sortOption = { createdAt: -1 };
+    } else if (q === 'oldestfirst') {
+        sortOption = { createdAt: 1 };
+    }
 
-    const videos = await Video.find({ tegs: { $in: tagsarry.map(tag => new RegExp(tag, 'i')) } });
-    // const videos = Video.find({tegs : {$in : tegs } });
 
-    if (videos.length !== 0) {
-        // console.log(videos)
-        return res.status(200).json(new ApiResponse(200, videos, `Video Fetched Succssfully`))
-    } else {
-        return res.status(404).json(new ApiResponse(404, videos, "Video Related To This Tegs Not Found"))
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+
+        const videos = await Video.find({ tegs: { $in: tagsarry.map(tag => new RegExp(tag, 'i')) }, isPublished: true })
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limitOptions);
+        // const videos = Video.find({tegs : {$in : tegs } });
+
+
+        // Count the total number of published videos
+        const totalVideos = await Video.countDocuments({  tegs: { $in: tagsarry.map(tag => new RegExp(tag, 'i')) },isPublished: true });
+        const totalPages = Math.ceil(totalVideos / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalPages,
+            totalVideos,
+            videos
+        }, "Latest Videos Fetched Successfully"));
+    } catch (error) {
+        console.error('Error fetching videos:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
 
 })
 
 
 const updateVideodetails = asyncHandeler(async (req, res) => {
-    const { _id } = req.params.id
+    const _id = req.params.id
+
     //TODO: update video details like title, description, thumbnail
+
+    if (!_id) return res.status(400).json(new ApiError(400, {}, "Please Provide Video ID"))
+
+    const lastversionvideo = await Video.findById(_id);
+    if (!lastversionvideo) return res.status(404).json(new ApiError(404, {}, "Your Requested Video Not Founded"));
+
+    // console.log(video.owner)
+    // console.log(req.user._id)
+
+    const verifyowner = verifypostowner(lastversionvideo.owner, req.user._id);
+    if (!verifyowner) {
+        return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Video"))
+    }
+
+    const thumbnailimglocal = req.files?.thumbnail?.[0].path;
+    const { tittle, description, tegs } = req.body
+
+    // intialize data 
+    const videodata = {
+        tittle,
+        description,
+        tegs
+    }
+    if (thumbnailimglocal) {
+        const uploadnewimage = await uploadOnCloudinary(thumbnailimglocal);
+
+        if (!uploadnewimage) {
+            return res.status(500).json(new ApiError(500, {}, "Failed to upload image"));
+        }
+
+        if (lastversionvideo && lastversionvideo.thumbnail) {
+            const public_id = extractIdfromurl(lastversionvideo.thumbnail)
+            await deletefromcloudinary(public_id);
+        }
+
+        videodata.thumbnail = uploadnewimage.url
+
+    }
+
+    const updatedvideodata = await Video.findByIdAndUpdate(_id, videodata, { new: true });
+    if (!updatedvideodata) {
+        return res.status(404).json(new ApiError(404, {}, "Video Not Found & Faild to Update"));
+    }
+    return res.status(200).json(new ApiResponse(200, updatedvideodata, "Video Edited Successfully And Updated"));
 
 })
 
@@ -200,7 +270,7 @@ const handledeleteVideo = asyncHandeler(async (req, res) => {
 })
 
 const togglePublishStatus = asyncHandeler(async (req, res) => {
-    const videoId  = req.params.id
+    const videoId = req.params.id
     if (!videoId) {
         return res.status(401).json(new ApiError(401, {}, "Please Provide Video Id"))
     }

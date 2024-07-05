@@ -5,7 +5,8 @@ import {
     handlegetVideoById,
     handlegetvideobytegs,
     handledeleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    updateVideodetails
 
 } from "../controllers/videos.controller.js";
 import { Router } from "express"
@@ -27,6 +28,14 @@ Videorouter.post("/addvideo", verifyjwt, upload.fields(
     ]
 ),handleuploadvideo);
 
+Videorouter.patch("/update/videodetails/:id",verifyjwt,upload.fields(
+    [
+        {
+            name : "thumbnail",
+            maxCount : 1
+        }
+    ]
+),updateVideodetails);
 
 Videorouter.get("/getvideos",handlegetvideosbytimeline);
 Videorouter.get("/getvideosadv" , handlegetvideoadv);

@@ -141,12 +141,12 @@ const updateeditblogs = asyncHandeler(async (req, res) => {
         if (profileImgPath) {
             const uploadedImage = await uploadOnCloudinary(profileImgPath);
 
-            if (lastblog && lastblog.coverImageURL && lastblog.coverImageURL.public_id) {
-                await deletefromcloudinary(lastblog.coverImageURL.public_id);
-            }
-
             if (!uploadedImage) {
                 return res.status(500).json(new ApiError(500, {}, "Failed to upload image"));
+            }
+
+            if (lastblog && lastblog.coverImageURL && lastblog.coverImageURL.public_id) {
+                await deletefromcloudinary(lastblog.coverImageURL.public_id);
             }
 
             blogsdata.coverImageURL = {
