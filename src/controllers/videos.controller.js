@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/apiresponse.js";
 import { Video } from "../models/Video.model.js";
 import { deletefromcloudinary, videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import verifypostowner from "../utils/checkforpostowner.js";
+import { User } from "../models/user.model.js";
 
 const handleuploadvideo = asyncHandeler(async (req, res) => {
     // get video uploaded at multer surver then 
@@ -133,9 +134,14 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
 
 const handlegetVideoById = asyncHandeler(async (req, res) => {
     const _id = req.params.id
-    const video = await Video.findById(_id)
+    const video = await Video.findByIdAndUpdate(_id,{ $inc: { views: 1 } }, { new: true })
 
     if (!video) return res.status(404).json(new ApiError(404, {}, "Your Requested Video Not Found"))
+
+    if(req.user){
+        const updatehistory = await User.findByIdAndUpdate(req.user._id,{ $push: { watchHistory: new mongoose.Types.ObjectId(video._id) },},{ new: true })
+        // console.log(updatehistory)
+    }
 
     return res
         .status(200)

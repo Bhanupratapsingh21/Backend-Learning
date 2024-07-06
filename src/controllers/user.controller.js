@@ -493,7 +493,7 @@ const getWatchHistory = asyncHandeler(async (req, res) => {
         },
         {
             $lookup: {
-                from: "Video",
+                from: "videos",
                 localField: "watchHistory",
                 foreignField: "_id",
                 as: "watchHistory",
@@ -512,14 +512,14 @@ const getWatchHistory = asyncHandeler(async (req, res) => {
                                         avater: 1,
                                     }
                                 },
-                                {
-                                    $addFields: {
-                                        owner: {
-                                            $first: "$owner",
-                                        }
-                                    }
-                                }
                             ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner",
+                            }
                         }
                     }
                 ]

@@ -21,7 +21,7 @@ const toggleTweetLike = asyncHandeler(async (req, res) => {
 }
 )
 
-const getLikedVideos = asyncHandler(async (req, res) => {
+const getLikedVideos = asyncHandeler(async (req, res) => {
     //TODO: get all liked videos
 })
 
