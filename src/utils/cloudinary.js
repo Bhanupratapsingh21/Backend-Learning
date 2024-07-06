@@ -36,7 +36,8 @@ const uploadOnCloudinary = async (localFilePath) => {
         throw error;
     }
 };
-// { resource_type: "video" }
+
+
 const deletefromcloudinary = async (public_id) => {
     try {
         const response = await cloudinary.uploader.destroy(public_id, { invalidate: true });
