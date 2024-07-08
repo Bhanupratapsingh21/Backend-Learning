@@ -44,4 +44,5 @@ Videorouter.get("/getvideobytegs", handlegetvideobytegs);
 Videorouter.delete("/deletevideo/:id", verifyjwt, handledeleteVideo)
 Videorouter.get("/updateisPublished/:id", verifyjwt, togglePublishStatus);
 
+
 export default Videorouter

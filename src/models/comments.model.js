@@ -3,21 +3,26 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const commentSchema = new Schema(
     {
-        content : {
+        content: {
             type: String,
-            required : true
+            required: true
         },
-        video : {
-            type : Schema.Types.ObjectId,
-            ref : "Video"
+        commenton: {
+            type: String,
+            enum: ['Video', 'Tweet'],
+            required: true
         },
-        owner : {
-            type : Schema.Types.ObjectId,
-            ref : "User"
+        postId: {
+            type: Schema.Types.ObjectId,
+            required: true
+        },
+        owner: {
+            type: Schema.Types.ObjectId,
+            ref: "User"
         }
     },
     {
-        timestamps : true
+        timestamps: true
     }
 )
 
