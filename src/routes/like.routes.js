@@ -1,13 +1,16 @@
 import { 
-    getLikedVideos,
-    toggleTweetLike,
     toggleCommentLike,
+    toggleTweetLike,
     toggleVideoLike,
-} from "../controllers/like.controller";
+    getLikedVideos
+} from "../controllers/like.controller.js";
 import { Router } from "express";
+import { verifyjwt } from "../middlewares/auth.middleware.js";
 
 const LikeRouter = Router()
 
-LikeRouter.get("/like/video/:id", toggleVideoLike);
+LikeRouter.get("/video/:videoId", verifyjwt,toggleVideoLike);
+LikeRouter.get("/comment/:commentId", verifyjwt,toggleCommentLike);
+LikeRouter.get("/tweet/:tweetId", verifyjwt,toggleTweetLike);
 
 export default LikeRouter

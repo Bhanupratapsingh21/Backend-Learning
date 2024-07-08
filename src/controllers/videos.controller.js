@@ -6,6 +6,7 @@ import { Video } from "../models/Video.model.js";
 import { deletefromcloudinary, videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import verifypostowner from "../utils/checkforpostowner.js";
 import { User } from "../models/user.model.js";
+import { like } from "../models/like.model.js";
 
 const handleuploadvideo = asyncHandeler(async (req, res) => {
     // get video uploaded at multer surver then 
@@ -133,19 +134,39 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
 })
 
 const handlegetVideoById = asyncHandeler(async (req, res) => {
-    const _id = req.params.id
-    const video = await Video.findByIdAndUpdate(_id,{ $inc: { views: 1 } }, { new: true })
+    const _id = req.params.id;
 
-    if (!video) return res.status(404).json(new ApiError(404, {}, "Your Requested Video Not Found"))
+    try {
+        // Increment the view count and fetch the updated video
+        const video = await Video.findByIdAndUpdate(_id, { $inc: { views: 1 } }, { new: true });
 
-    if(req.user){
-        const updatehistory = await User.findByIdAndUpdate(req.user._id,{ $push: { watchHistory: new mongoose.Types.ObjectId(video._id) },},{ new: true })
-        // console.log(updatehistory)
+        if (!video) {
+            return res.status(404).json(new ApiError(404, {}, "Your Requested Video Not Found"));
+        }
+
+        // Count the number of likes for the video
+        const LikeCount = await like.countDocuments({ video: _id });
+
+        let likebyuserstate = false; // Default value
+
+        if (req.user) {
+            // Update the user's watch history
+            const updatehistory = await User.findByIdAndUpdate(req.user._id, {
+                $push: { watchHistory: new mongoose.Types.ObjectId(video._id) }
+            }, { new: true });
+
+            // Check if the user has liked the video
+            const getlikebyuserstate = await like.findOne({ video: _id, likedBy: req.user._id });
+            likebyuserstate = !!getlikebyuserstate; // Convert to boolean
+        }
+
+        // Return the response with the video, like count, and user like state
+        return res.status(200).json(new ApiResponse(200, { video, LikeCount, likebyuserstate }, "Video Fetched Successfully"));
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error"));
     }
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, video, "Video Fetched Successfullly"))
 })
 
 const handlegetvideobytegs = asyncHandeler(async (req, res) => {
@@ -177,7 +198,7 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
 
 
         // Count the total number of published videos
-        const totalVideos = await Video.countDocuments({  tegs: { $in: tagsarry.map(tag => new RegExp(tag, 'i')) },isPublished: true });
+        const totalVideos = await Video.countDocuments({ tegs: { $in: tagsarry.map(tag => new RegExp(tag, 'i')) }, isPublished: true });
         const totalPages = Math.ceil(totalVideos / limitOptions);
 
         return res.status(200).json(new ApiResponse(200, {

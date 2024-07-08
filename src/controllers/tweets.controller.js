@@ -4,6 +4,7 @@ import { asyncHandeler } from "../utils/asynchandeler.js";
 import { ApiError } from "../utils/apierror.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import verifypostowner from "../utils/checkforpostowner.js";
+import { like } from "../models/like.model.js";
 
 const handleaddblogs = asyncHandeler(async (req, res) => {
     try {
@@ -68,15 +69,15 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
     }
 });
 
-const getblogsAdv = asyncHandeler(async (req,res)=>{
+const getblogsAdv = asyncHandeler(async (req, res) => {
     // first get the data from params and quarrys   
-    const { q, limit,page } = req.query;
+    const { q, limit, page } = req.query;
     let sortOption = {};
     if (q === "newestfirst") {
         sortOption = { createdAt: -1 };
     } else if (q === 'oldestfirst') {
         sortOption = { createdAt: 1 };
-    }   
+    }
 
     // then added a sortoption to sort it ar the oldest first and newst first
 
@@ -208,7 +209,14 @@ const handlegetindividualblog = asyncHandeler(async (req, res) => {
             return res.status(404).json(new ApiError(404, {}, "Your Requested Tweet Is Not Found"));
         }
 
-        return res.status(200).json(new ApiResponse(200, blog, "Tweet Fetched Successfully"));
+        const likeCount = await like.countDocuments({ comment: _id })
+        let likebyuserstate = false;
+        if (req.user) {
+            // Check if the user has liked the video
+            const getlikebyuserstate = await like.findOne({ comment: _id, likedBy: req.user._id });
+            likebyuserstate = !!getlikebyuserstate; // Convert to boolean
+        }
+        return res.status(200).json(new ApiResponse(200, {blog,likeCount,likebyuserstate}, "Tweet Fetched Successfully"));
     } catch (error) {
         console.error(error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
