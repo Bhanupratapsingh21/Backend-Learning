@@ -6,11 +6,45 @@ import { json } from "express"
 import { Comment } from "../models/comments.model.js"
 import { Video } from "../models/Video.model.js"
 import { Tweet } from "../models/tweets.model.js"
+import verifypostowner from "../utils/checkforpostowner.js"
 
-const getVideoComments = asyncHandeler(async (req, res) => {
-    //TODO: get all comments for a video
-    const { videoId } = req.params
-    const { page = 1, limit = 10 } = req.query
+const getPostComments = asyncHandeler(async (req, res) => {
+    const PostId = req.params.postId
+    const { q, limit, page } = req.query;
+
+    let sortoptions = {}
+    if (q === "newestfirst") {
+        sortoptions = { createdAt: -1 };
+    } else if (q === "oldestfirst") {
+        sortoptions = { createdAt: 1 };
+    }
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const Comments = await Comment.find({ postId: PostId })
+            .sort(sortoptions)
+            .skip(skip)
+            .limit(limitOptions);
+        if (!Comments) {
+            return res.status(404).json(new ApiError(404, {}, "Not Found"))
+        }
+        const totalComment = await Comment.countDocuments({ postId: PostId })
+        const totalPages = Math.ceil(totalComment / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalPages,
+            totalComment,
+            Comments
+        }, "Letest Video Fetched SuccessFully"));
+    } catch (error) {
+        console.error('Error fetching Comments:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
 
 })
 
@@ -63,15 +97,62 @@ const addComment = asyncHandeler(async (req, res) => {
 })
 
 const updateComment = asyncHandeler(async (req, res) => {
-   
+    const CommentId = req.params.commentId
+    const { content } = req.body
+    if (!content) {
+        return res.status(401).json(new ApiError(401, {}, "Please Provide Content For Comment"));
+    }
+
+    try {
+        const comment = await Comment.findById(CommentId);
+        if (!comment) {
+            return res.status(404).json(new ApiError(404, {}, "Comment Not Found"))
+        }
+        const verifyowner = verifypostowner(comment.owner, req.user._id)
+        if (!verifyowner) {
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Comment"))
+        }
+        const updateComment = await Comment.findByIdAndUpdate(CommentId, { content: content }, { new: true })
+        if (!updateComment) {
+            return res.status(501).json(new ApiError(501, {}, "Error While Updating Comment Pls Try Again"));
+        }
+
+        return res.status(201).json(new ApiResponse(201, updateComment, "Comment Updated SuccessFullly"));
+
+    } catch (error) {
+        console.log(error)
+        return res.status(501).json(new ApiError(501, {}, "Internal Server Error"))
+    }
 })
 
 const deleteComment = asyncHandeler(async (req, res) => {
-    // TODO: delete a comment
+    const CommentId = req.params.commentId
+
+    try {
+        const comment = await Comment.findById(CommentId);
+        if (!comment) {
+            return res.status(404).json(new ApiError(404, {}, "Comment Not Found"))
+        }
+        const verifyowner = verifypostowner(comment.owner, req.user._id)
+        if (!verifyowner) {
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Comment"))
+        }
+
+        const deletecomment = await Comment.findByIdAndDelete(CommentId);
+        if (!deletecomment) {
+            return res.status(501).json(new ApiError(501, {}, "Error While Updating Comment Pls Try Again"));
+        }
+
+        return res.status(201).json(new ApiResponse(201, {}, "Comment Deleted SuccessFullly"))
+
+    } catch (error) {
+        console.log(error)
+        return res.status(501).json(new ApiError(501, {}, "Internal Server Error"))
+    }
 })
 
 export {
-    getVideoComments,
+    getPostComments,
     addComment,
     updateComment,
     deleteComment
