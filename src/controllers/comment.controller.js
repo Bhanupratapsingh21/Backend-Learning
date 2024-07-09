@@ -23,6 +23,8 @@ const getPostComments = asyncHandeler(async (req, res) => {
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
 
+    // await Comment.aggregate
+
     try {
         const Comments = await Comment.find({ postId: PostId })
             .sort(sortoptions)
