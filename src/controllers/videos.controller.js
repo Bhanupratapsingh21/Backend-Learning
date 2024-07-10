@@ -104,16 +104,46 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
         sortOption = { createdAt: 1 };
     }
 
-
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
 
     try {
-        const videos = await Video.find({ isPublished: true })
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limitOptions);
+        const aggregationPipeline = [
+            { $match: { isPublished: true } }, // Match only published videos
+            { $sort: sortOption }, // Sort based on sortOption
+            { $skip: skip }, // Pagination: Skip records
+            { $limit: limitOptions }, // Pagination: Limit records
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "ownerDetails"
+                }
+            },
+            { $unwind: "$ownerDetails" }, // Unwind to get single owner details
+            {
+                $project: {
+                    _id: 1,
+                    videoFile: 1,
+                    thumbnail: 1,
+                    title: 1,
+                    description: 1,
+                    duration: 1,
+                    views: 1,
+                    isPublished: 1,
+                    tags: 1,
+                    owner: 1,
+                    ownerusername: "$ownerDetails.username",
+                    owneravatar: "$ownerDetails.avatar.url",
+                    createdAt: 1,
+                    updatedAt: 1
+                }
+            }
+        ];
+
+        const videos = await Video.aggregate(aggregationPipeline);
 
         // Count the total number of published videos
         const totalVideos = await Video.countDocuments({ isPublished: true });
@@ -130,6 +160,7 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
         console.error('Error fetching videos:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
+
 
 })
 
@@ -212,8 +243,8 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
         console.error('Error fetching videos:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
+});
 
-})
 
 
 const updateVideodetails = asyncHandeler(async (req, res) => {
