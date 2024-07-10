@@ -30,11 +30,14 @@ import TweetsRouter from "./routes/tweets.routes.js"
 import Videorouter from "./routes/video.routes.js"
 import LikeRouter from "./routes/like.routes.js"
 import CommentRouter from "./routes/comments.routes.js"
+import PlaylistRouter from "./routes/playlist.routes.js"
+
 // routes declaration
 app.use('/api/v1/users', userRouter);
 app.use("/api/v1/tweets", TweetsRouter);
 app.use("/api/v1/videos", Videorouter);
 app.use("/api/v1/like",LikeRouter)
 app.use("/api/v1/comment",CommentRouter);
+app.use("/api/v1/playlist", PlaylistRouter);
 
 export { app }

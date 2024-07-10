@@ -67,34 +67,36 @@ const addVideoToPlaylist = asyncHandeler(async (req, res) => {
 })
 
 const removeVideoFromPlaylist = asyncHandeler(async (req, res) => {
-
-    const { playlistId, videoId } = req.params
+    const { playlistId, videoId } = req.params;
     if (!playlistId || !videoId) {
-        return res.status(402).json(new ApiError(402, {}, "Please Provide Playlist ID And Video ID"))
+        return res.status(402).json(new ApiError(402, {}, "Please Provide Playlist ID And Video ID"));
     }
-    try {
 
-        const playlist = Playlist.findById(playlistId)
+    try {
+        const playlist = await Playlist.findById(playlistId);
         if (!playlist) {
             return res.status(404).json(new ApiError(404, {}, "Playlist Not Found"));
         }
 
         const verifyowner = verifypostowner(playlist.owner, req.user._id);
         if (!verifyowner) {
-            return res.status(401).json(new ApiError(401, {}, "Your Are Not The Owner Of this Playlist"));
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Playlist"));
         }
 
-        playlist.videos.filter(videoid => videoid !== videoId);
+        // console.log(`Original playlist videos: ${playlist.videos}`);
 
-        // Save the updated item
+        playlist.videos = playlist.videos.filter(videoid => videoid.toString() !== videoId.toString());
+
+        // console.log(`Updated playlist videos: ${playlist.videos}`);
+
         await playlist.save();
 
-        return res.status(201).json(new ApiResponse(201, addvideo, "Video Deleted From Playlist SuccessFully"))
-
+        return res.status(200).json(new ApiResponse(200, {}, "Video Deleted From Playlist Successfully"));
     } catch (error) {
-        console.log(error)
-        return res.status(501).json(new ApiError(501, {}, "Internal Server Error Pls Try Again"));
+        console.error(error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error, Please Try Again"));
     }
+
 })
 
 const deletePlaylist = asyncHandeler(async (req, res) => {
@@ -121,29 +123,38 @@ const deletePlaylist = asyncHandeler(async (req, res) => {
 })
 
 const updatePlaylist = asyncHandeler(async (req, res) => {
-    const { playlistId } = req.params
-    const { name, description } = req.body
+    const { playlistId } = req.params;
+    const { name, description } = req.body;
+
     if (!name || !description) {
-        return res.status(402).json(new ApiError(402, {}, "Please Provide Playlist's Name And Descriptions"))
-    }
-    const playlist = await Playlist.findById(playlistId)
-    if (!playlist) {
-        return res.status(404).json(new ApiError(404, {}, "Playlist Not Found"));
+        return res.status(402).json(new ApiError(402, {}, "Please Provide Playlist's Name And Description"));
     }
 
-    const verifyowner = verifypostowner(playlist.owner, req.user._id);
-    if (!verifyowner) {
-        return res.status(401).json(new ApiError(401, {}, "Your Are Not The Owner Of this Playlist"));
-    }
+    try {
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            return res.status(404).json(new ApiError(404, {}, "Playlist Not Found"));
+        }
 
-    const upadtedPlaylist = await Playlist.findByIdAndUpdate(playlistId, {
-        name: name, description: description
-    }, { new: true });
-    if (!upadtedPlaylist) {
-        return res.status(501).json(new ApiError(501, {}, "Error While Updateing Playlist"));
-    }
+        const verifyowner = verifypostowner(playlist.owner, req.user._id);
+        if (!verifyowner) {
+            return res.status(401).json(new ApiError(401, {}, "You Are Not The Owner Of This Playlist"));
+        }
 
-    return res.status(new ApiResponse(200, upadtedPlaylist, "Playlist Updated Successfully"))
+        const updatedPlaylist = await Playlist.findByIdAndUpdate(playlistId, {
+            name: name,
+            description: description
+        }, { new: true });
+
+        if (!updatedPlaylist) {
+            return res.status(500).json(new ApiError(500, {}, "Error While Updating Playlist"));
+        }
+
+        return res.status(200).json(new ApiResponse(200, updatedPlaylist, "Playlist Updated Successfully"));
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error, Please Try Again"));
+    }
 
 })
 
