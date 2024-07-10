@@ -33,7 +33,118 @@ const getUserPlaylists = asyncHandeler(async (req, res) => {
 })
 
 const getPlaylistById = asyncHandeler(async (req, res) => {
-    const { playlistId } = req.params
+    const { playlistId } = req.params;
+    const { limit, page } = req.query;
+    // console.log(limit, page)
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const aggregationPipeline = [
+            { $match: { _id: new mongoose.Types.ObjectId(playlistId) } },
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "videos",
+                    foreignField: "_id",
+                    as: "videoDetails"
+                },
+            },
+            {
+                $addFields: {
+                    videos: {
+                        $slice: ["$videos", skip, limitOptions]
+                    }
+                }
+            },
+            { $unwind: "$videoDetails" }, // If necessary
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "videoDetails.owner",
+                    foreignField: "_id",
+                    as: "videoOwnerDetails"
+                }
+            },
+            { $unwind: "$videoOwnerDetails" },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    owner: 1,
+                    videos: {
+                        _id: "$videoDetails._id",
+                        videoFile: "$videoDetails.videoFile",
+                        thumbnail: "$videoDetails.thumbnail",
+                        title: "$videoDetails.title",
+                        description: "$videoDetails.description",
+                        duration: "$videoDetails.duration",
+                        views: "$videoDetails.views",
+                        isPublished: "$videoDetails.isPublished",
+                        tags: "$videoDetails.tags",
+                        owner: "$videoOwnerDetails._id",
+                        ownerusername: "$videoOwnerDetails.username",
+                        owneravatar: "$videoOwnerDetails.avatar.url",
+                        createdAt: "$videoDetails.createdAt",
+                        updatedAt: "$videoDetails.updatedAt"
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    name: { $first: "$name" },
+                    description: { $first: "$description" },
+                    owner: { $first: "$owner" },
+                    videos: { $push: "$videos" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "ownerDetails"
+                }
+            },
+            { $unwind: "$ownerDetails" },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    owner: 1,
+                    videos: 1,
+                    "ownerDetails.username": 1,
+                    "ownerDetails.email": 1,
+                    "ownerDetails.fullname": 1,
+                    "ownerDetails.avatar": "$ownerDetails.avatar",
+                }
+            },
+        ];
+        // Ensure Playlists structure and verify pagination logic
+
+        const Playlists = await Playlist.aggregate(aggregationPipeline);
+
+        if (!Playlists || Playlists.length === 0) {
+            return res.status(404).json(new ApiError(404, {}, "Not Found"));
+        }
+        const TotalVideoinPlaylist = Playlists[0].videos[0].length;
+        const totalPages = Math.ceil(TotalVideoinPlaylist / limitOptions);
+        // console.log(Playlists[0].videos[0].length)
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalPages,
+            TotalVideoinPlaylist,
+            Playlists
+        }, "Playlists and Videos Fetched Successfully"));
+    } catch (error) {
+        console.error('Error fetching Playlists:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
 
 })
 

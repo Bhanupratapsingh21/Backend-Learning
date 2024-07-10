@@ -9,31 +9,59 @@ import { Tweet } from "../models/tweets.model.js"
 import verifypostowner from "../utils/checkforpostowner.js"
 
 const getPostComments = asyncHandeler(async (req, res) => {
-    const PostId = req.params.postId
+    const PostId = req.params.postId;
     const { q, limit, page } = req.query;
 
-    let sortoptions = {}
+    let sortOptions = { createdAt: -1 };
     if (q === "newestfirst") {
-        sortoptions = { createdAt: -1 };
+        sortOptions = { createdAt: -1 };
     } else if (q === "oldestfirst") {
-        sortoptions = { createdAt: 1 };
+        sortOptions = { createdAt: 1 };
     }
 
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
 
-    // await Comment.aggregate
-
     try {
-        const Comments = await Comment.find({ postId: PostId })
-            .sort(sortoptions)
-            .skip(skip)
-            .limit(limitOptions);
+        const aggregationPipeline = [
+            { $match: { postId: new mongoose.Types.ObjectId(PostId) } },
+            {
+                $lookup: {
+                    from: "users", // the name of the User collection
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" },
+            { $sort: sortOptions },
+            { $skip: skip },
+            { $limit: limitOptions },
+            {
+                $project: {
+                    content: 1,
+                    commenton: 1,
+                    postId: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    user: {
+                        username: 1,
+                        email: 1,
+                        fullname: 1,
+                        avatar: 1
+                    }
+                }
+            }
+        ];
+
+        const Comments = await Comment.aggregate(aggregationPipeline);
+
         if (!Comments) {
-            return res.status(404).json(new ApiError(404, {}, "Not Found"))
+            return res.status(404).json(new ApiError(404, {}, "Not Found"));
         }
-        const totalComment = await Comment.countDocuments({ postId: PostId })
+
+        const totalComment = await Comment.countDocuments({ postId: PostId });
         const totalPages = Math.ceil(totalComment / limitOptions);
 
         return res.status(200).json(new ApiResponse(200, {
@@ -42,11 +70,12 @@ const getPostComments = asyncHandeler(async (req, res) => {
             totalPages,
             totalComment,
             Comments
-        }, "Letest Video Fetched SuccessFully"));
+        }, "Comments Fetched Successfully"));
     } catch (error) {
         console.error('Error fetching Comments:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
+
 
 })
 
