@@ -9,5 +9,6 @@ import {
 const SubscriptionRouter = Router()
 
 SubscriptionRouter.post("/addSubscriptions/:channelId", verifyjwt, toggleSubscription);
+SubscriptionRouter.get("/getsubscribers/:channelId",getUserChannelSubscribers)
 
 export default SubscriptionRouter

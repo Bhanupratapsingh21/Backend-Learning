@@ -7,6 +7,7 @@ import { deletefromcloudinary, videodeletefromcloudinary, uploadOnCloudinary } f
 import verifypostowner from "../utils/checkforpostowner.js";
 import { User } from "../models/user.model.js";
 import { like } from "../models/like.model.js";
+import { Subscription } from "../models/subscription.model.js";
 
 const handleuploadvideo = asyncHandeler(async (req, res) => {
     // get video uploaded at multer surver then 
@@ -177,22 +178,25 @@ const handlegetVideoById = asyncHandeler(async (req, res) => {
 
         // Count the number of likes for the video
         const LikeCount = await like.countDocuments({ video: _id });
+        const totalSubs = await Subscription.countDocuments({ channel: video.owner });
 
         let likebyuserstate = false; // Default value
+        let channelsubscribestate = false;
 
         if (req.user) {
             // Update the user's watch history
             const updatehistory = await User.findByIdAndUpdate(req.user._id, {
                 $push: { watchHistory: new mongoose.Types.ObjectId(video._id) }
             }, { new: true });
-
+            const getsubscribedstate = await Subscription.findOne({ subscriber: req.user._id, channel: video.owner })
+            channelsubscribestate = !!getsubscribedstate;
             // Check if the user has liked the video
             const getlikebyuserstate = await like.findOne({ video: _id, likedBy: req.user._id });
             likebyuserstate = !!getlikebyuserstate; // Convert to boolean
         }
 
         // Return the response with the video, like count, and user like state
-        return res.status(200).json(new ApiResponse(200, { video, LikeCount, likebyuserstate }, "Video Fetched Successfully"));
+        return res.status(200).json(new ApiResponse(200, { video, LikeCount, totalSubs, likebyuserstate, channelsubscribestate }, "Video Fetched Successfully"));
 
     } catch (error) {
         console.error(error);

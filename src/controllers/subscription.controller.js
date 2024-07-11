@@ -4,12 +4,13 @@ import { Subscription } from "../models/subscription.model.js"
 import { ApiError } from "../utils/apierror.js"
 import { ApiResponse } from "../utils/apiresponse.js"
 import { asyncHandeler } from "../utils/asynchandeler.js"
+import { json } from "express"
 
 const toggleSubscription = asyncHandeler(async (req, res) => {
     const channelId = req.params.channelId;
-    
+
     if (!channelId) {
-        return res.status(400).json(new ApiError(400, {}, "Please provide a channel ID"));
+        return res.status(400).json(new ApiError(400, {}, "Please Provide a channel ID"));
     }
 
     try {
@@ -45,8 +46,64 @@ const toggleSubscription = asyncHandeler(async (req, res) => {
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandeler(async (req, res) => {
-    const { channelId } = req.params
-})
+    const { channelId } = req.params;
+    const { limit, page } = req.query;
+
+    if (!channelId) {
+        return res.status(401).json(new ApiError(401, {}, "Please Provide Channel ID"));
+    }
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const aggregationPipeline = [
+            { $match: { channel: new mongoose.Types.ObjectId(channelId) } },
+            { $skip: skip },
+            { $limit: limitOptions },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "subscriber",
+                    foreignField: "_id",
+                    as: "SubscriberDetails"
+                }
+            },
+            { $unwind: "$SubscriberDetails" },
+            {
+                $project: {
+                    "SubscriberDetails.username": 1,
+                    "SubscriberDetails.email": 1,
+                    "SubscriberDetails.fullname": 1,
+                    "SubscriberDetails.avatar": 1,
+                }
+            }
+        ];
+
+        const subscribers = await Subscription.aggregate(aggregationPipeline);
+        if (!subscribers.length) {
+            return res.status(404).json(new ApiError(404, {}, "Not Found & 0 Subs"));
+        }
+
+        const totalSubs = await Subscription.countDocuments({ channel: new mongoose.Types.ObjectId(channelId) });
+        const totalPages = Math.ceil(totalSubs / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalSubs,
+            totalPages,
+            subscribers,
+        }, "Subscribers Fetched Successfully"));
+
+    } catch (error) {
+        console.log(error);
+        return res.status(501).json(new ApiError(501, {}, "Internal Server Error"));
+    }
+});
+
+
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandeler(async (req, res) => {
