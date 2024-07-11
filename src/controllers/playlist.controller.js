@@ -25,12 +25,22 @@ const createPlaylist = asyncHandeler(async (req, res) => {
 
     return res.status(201).json(new ApiResponse(201, playlist, "Playlist Created Successfully Add Video In It"))
 })
-
 const getUserPlaylists = asyncHandeler(async (req, res) => {
-    const { userId } = req.params
-    //TODO: get user playlists
-    // 
-})
+    const { userId } = req.params;
+    try {
+        // Find playlists where the creator matches the userId
+        const playlists = await Playlist.find({ owner: userId });
+
+        if (!playlists.length) {
+            return res.status(404).json(new ApiError(404, {}, "No playlists found for the user"));
+        }
+
+        return res.status(200).json(new ApiResponse(200, playlists, "User's Playlists Fetched Successfully"));
+    } catch (error) {
+        console.error('Error fetching user playlists:', error);
+        return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
+    }
+});
 
 const getPlaylistById = asyncHandeler(async (req, res) => {
     const { playlistId } = req.params;

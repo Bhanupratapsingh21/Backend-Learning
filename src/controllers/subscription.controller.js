@@ -1,10 +1,10 @@
-import mongoose, { isValidObjectId } from "mongoose"
+import mongoose from "mongoose"
 import { User } from "../models/user.model.js"
 import { Subscription } from "../models/subscription.model.js"
 import { ApiError } from "../utils/apierror.js"
 import { ApiResponse } from "../utils/apiresponse.js"
 import { asyncHandeler } from "../utils/asynchandeler.js"
-import { json } from "express"
+
 
 const toggleSubscription = asyncHandeler(async (req, res) => {
     const channelId = req.params.channelId;
@@ -108,7 +108,61 @@ const getUserChannelSubscribers = asyncHandeler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandeler(async (req, res) => {
     const { subscriberId } = req.params
-})
+    const { limit, page } = req.query;
+
+    if (!subscriberId) {
+        return res.status(401).json(new ApiError(401, {}, "Please Login"));
+    }
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
+    try {
+        const aggregationPipeline = [
+            { $match: { subscriber: new mongoose.Types.ObjectId(subscriberId) } },
+            { $skip: skip },
+            { $limit: limitOptions },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "channel",
+                    foreignField: "_id",
+                    as: "ChannelDetails"
+                }
+            },
+            { $unwind: "$ChannelDetails" },
+            {
+                $project: {
+                    "ChannelDetails.username": 1,
+                    "ChannelDetails.email": 1,
+                    "ChannelDetails.fullname": 1,
+                    "ChannelDetails.avatar": 1,
+                }
+            }
+        ];
+
+        const SubscribedChannels = await Subscription.aggregate(aggregationPipeline);
+        if (!SubscribedChannels.length) {
+            return res.status(404).json(new ApiError(404, {}, "You have't Subscribed To Any One"));
+        }
+
+        const totalSubscribedChannels = await Subscription.countDocuments({ subscriber: new mongoose.Types.ObjectId(subscriberId) });
+        const totalPages = Math.ceil(totalSubscribedChannels / limitOptions);
+
+        return res.status(200).json(new ApiResponse(200, {
+            page: pageNumber,
+            limit: limitOptions,
+            totalSubscribedChannels,
+            totalPages,
+            SubscribedChannels,
+        }, "Subscribed Channels Fetched Successfully"));
+
+    } catch (error) {
+        console.log(error);
+        return res.status(501).json(new ApiError(501, {}, "Internal Server Error"));
+    }
+});
 
 export {
     toggleSubscription,

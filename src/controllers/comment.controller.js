@@ -9,8 +9,10 @@ import { Tweet } from "../models/tweets.model.js"
 import verifypostowner from "../utils/checkforpostowner.js"
 
 const getPostComments = asyncHandeler(async (req, res) => {
-    const PostId = req.params.postId;
+    const postId = req.params.postId;
     const { q, limit, page } = req.query;
+
+    const userId = req.user._id; // Assuming you have req.user._id available for the authenticated user
 
     let sortOptions = { createdAt: -1 };
     if (q === "newestfirst") {
@@ -25,7 +27,7 @@ const getPostComments = asyncHandeler(async (req, res) => {
 
     try {
         const aggregationPipeline = [
-            { $match: { postId: new mongoose.Types.ObjectId(PostId) } },
+            { $match: { postId: new mongoose.Types.ObjectId(postId) } },
             {
                 $lookup: {
                     from: "users", // the name of the User collection
@@ -39,6 +41,30 @@ const getPostComments = asyncHandeler(async (req, res) => {
             { $skip: skip },
             { $limit: limitOptions },
             {
+                $lookup: {
+                    from: "likes",
+                    let: { commentId: "$_id", userId: new mongoose.Types.ObjectId(userId) },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$comment", "$$commentId"] },
+                                        { $eq: ["$likedBy", "$$userId"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "likeInfo"
+                }
+            },
+            {
+                $addFields: {
+                    commentLikeState: { $cond: { if: { $gt: [{ $size: "$likeInfo" }, 0] }, then: true, else: false } }
+                }
+            },
+            {
                 $project: {
                     content: 1,
                     commenton: 1,
@@ -50,18 +76,19 @@ const getPostComments = asyncHandeler(async (req, res) => {
                         email: 1,
                         fullname: 1,
                         avatar: 1
-                    }
+                    },
+                    commentLikeState: 1
                 }
             }
         ];
 
         const Comments = await Comment.aggregate(aggregationPipeline);
 
-        if (!Comments) {
+        if (!Comments.length) {
             return res.status(404).json(new ApiError(404, {}, "Not Found"));
         }
 
-        const totalComment = await Comment.countDocuments({ postId: PostId });
+        const totalComment = await Comment.countDocuments({ postId: new mongoose.Types.ObjectId(postId) });
         const totalPages = Math.ceil(totalComment / limitOptions);
 
         return res.status(200).json(new ApiResponse(200, {
@@ -75,9 +102,7 @@ const getPostComments = asyncHandeler(async (req, res) => {
         console.error('Error fetching Comments:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
-
-
-})
+});
 
 const addComment = asyncHandeler(async (req, res) => {
     // check login 
