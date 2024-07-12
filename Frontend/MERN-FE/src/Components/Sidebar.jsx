@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router';
 
 function Sidebar() {
   return (
@@ -9,40 +10,46 @@ function Sidebar() {
                         <h1 className="text-4xl uppercase text-indigo-500">&lt;/&gt;</h1>
                     </div>
                     <ul className="flex flex-col py-4">
-                        <li>
+                        <li onClick={Navigate("/")}>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg dark:text-white"><i className="bx bx-home"></i></span>
-                                <span className="text-sm font-medium">Dashboard</span>
+                                <span className="text-sm font-medium">Home</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-music"></i></span>
-                                <span className="text-sm font-medium">Music</span>
+                                <span className="text-sm font-medium">Video's</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-drink"></i></span>
-                                <span className="text-sm font-medium">Drink</span>
+                                <span className="text-sm font-medium">Tweet's</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-shopping-bag"></i></span>
-                                <span className="text-sm font-medium">Shopping</span>
+                                <span className="text-sm font-medium">Subscription's</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
-                                <span className="text-sm font-medium">Chat</span>
+                                <span className="text-sm font-medium">Playlist's</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
+                                <span className="text-sm font-medium">Watch-History</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
                                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-user"></i></span>
-                                <span className="text-sm font-medium">Profile</span>
+                                <span className="text-sm font-medium">User-Profile</span>
                             </a>
                         </li>
                         <li>
