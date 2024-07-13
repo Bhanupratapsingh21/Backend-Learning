@@ -14,16 +14,23 @@ import {
     ModalHeader,
     ModalFooter,
     ModalBody,
+    Image,
     ModalCloseButton,
     Button,
 } from '@chakra-ui/react'
+
+import { useSelector } from 'react-redux';
 import { extendTheme } from "@chakra-ui/react";
+import { useDispatch } from 'react-redux'
 import axios from "axios"
+import { AuthLogin } from '../Store/features/Slice.js';
 function Header() {
+    const { status, userdata } = useSelector((state) => state.auth);
     const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
     const [authtypelogin, setauthtypelogin] = useState(true);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const dispatch = useDispatch();
     const theme = extendTheme({
         components: {
             Drawer: {
@@ -36,6 +43,7 @@ function Header() {
             },
         },
     });
+    console.log(userdata)
     const [loginform, setloginform] = useState({
         username: '',
         email: '',
@@ -76,14 +84,19 @@ function Header() {
         });
     };
 
+
+
     const handlesloginsubmit = async (e) => {
         e.preventDefault();
         // console.log(loginform)
         try {
-            const res = await axios.post(`http://localhost:4000/api/v1/users/login`,loginform,{
+            const res = await axios.post(`http://localhost:4000/api/v1/users/login`, loginform, {
                 withCredentials: true
             });
-            console.log(res.data)
+            console.log(res.data.data.refreshToken)
+            dispatch(AuthLogin(res.data.data.user))
+            localStorage.setItem("refreshToken", res.data.data.refreshToken)
+            console.log(userdata)
         } catch (error) {
             console.log(error)
         }
@@ -157,23 +170,35 @@ function Header() {
                     >
 
                         <label
-                            onClick={onOpenLogin}
                             for="profile"
                             class="relative w-full h-16 p-4  group flex flex-row gap-3 items-center justify-center text-black rounded-xl"
                         >
-                            <input class="hidden peer/expand" type="radio" name="path" id="profile" />
-                            <svg
-                                onClick={onOpenLogin}
-                                class="peer-hover/expand:scale-125 dark:fill-white peer-hover/expand:text-blue-400 peer-hover/expand:fill-blue-400"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"
-                                ></path>
-                            </svg>
+                            
+                            {
+
+                                !status ? (
+                                    <>
+                                        <svg
+                                            onClick={onOpenLogin}
+                                            class="peer-hover/expand:scale-125 dark:fill-white peer-hover/expand:text-blue-400 peer-hover/expand:fill-blue-400"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"
+                                            ></path>
+                                        </svg>
+                                    </>
+                                ) : (
+                                    
+                                        <div className='z-88 ml-5 w-[30px] relative text-white'>
+                                            <img className='relative w-[30px] h-[30px] rounded-2xl text-white' src={userdata.avatar.url} alt="img" />
+                                        </div>
+                                    
+                                )
+                            }
                         </label>
                         <label
                             for="settings"

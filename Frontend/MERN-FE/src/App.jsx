@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Sidebar from './Components/Sidebar.jsx';
 import Header from './Components/Header.jsx';
 import AllRoutes from './Routes/AllRoutes.jsx';
 
 function App() {
+
+  useEffect(()=>{
+    console.log(localStorage.getItem("refreshToken"))
+  },[])
+
   return (
     <div className="flex h-screen bg-white dark:bg-black">
       <Header />
