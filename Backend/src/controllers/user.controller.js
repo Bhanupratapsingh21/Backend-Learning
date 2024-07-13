@@ -1,7 +1,7 @@
 import { asyncHandeler } from "../utils/asynchandeler.js";
 import { ApiError } from "../utils/apierror.js";
 import { User } from "../models/user.model.js";
-import { deletefromcloudinary,videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deletefromcloudinary, videodeletefromcloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/apiresponse.js'
 import jwt from "jsonwebtoken"
 import { Subscription } from "../models/subscription.model.js";
@@ -40,7 +40,7 @@ const registerUser = asyncHandeler(async (req, res) => {
     // return res
 
     const { username, fullname, email, password } = req.body
-    if ([fullname, username, email, password].some((field) => field?.trim() === "")){
+    if ([fullname, username, email, password].some((field) => field?.trim() === "")) {
         return res
             .status(400)
             .json(new ApiError(400, {}, "All Fields Are Required"))
@@ -178,7 +178,9 @@ const loginUser = asyncHandeler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true, // Ensure secure is true for SameSite=None cookies
+        sameSite: 'None', // Ensure cross-origin cookies work
+        maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
     }
 
     return res
@@ -238,11 +240,11 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
         const user = await User.findById(decodedToken?._id)
 
         if (!user) {
-            throw new ApiError(401,{} ,"Invaild Refresh token")
+            throw new ApiError(401, {}, "Invaild Refresh token")
         }
 
         if (incomingrefreshtoken !== user?.refreshToken) {
-            throw new ApiError(401, {},"Refresh Token is expriys or used")
+            throw new ApiError(401, {}, "Refresh Token is expriys or used")
         }
 
         const options = {
@@ -413,7 +415,7 @@ const GetUserChannalProfile = asyncHandeler(async (req, res) => {
 
         return res
             .status(400)
-            .json(new ApiError(400, {},"username Is Missing"))
+            .json(new ApiError(400, {}, "username Is Missing"))
     }
 
     const channal = await User.aggregate([
@@ -471,7 +473,7 @@ const GetUserChannalProfile = asyncHandeler(async (req, res) => {
     if (!channal?.length) {
         return res
             .status(400)
-            .json(new ApiError(400, {},"Channal Does Not Exists"))
+            .json(new ApiError(400, {}, "Channal Does Not Exists"))
     }
 
     return res

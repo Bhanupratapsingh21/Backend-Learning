@@ -7,26 +7,49 @@ import {
     DrawerOverlay,
     DrawerContent,
     DrawerCloseButton,
-    useDisclosure
+    useDisclosure,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    Button,
 } from '@chakra-ui/react'
 import { extendTheme } from "@chakra-ui/react";
-
+import axios from "axios"
 function Header() {
+    const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
+    const [authtypelogin, setauthtypelogin] = useState(true);
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const { isOpen, onOpen, onClose } = useDisclosure()
     const theme = extendTheme({
         components: {
-          Drawer: {
-            baseStyle: {
-              dialog: {
-                bg: isDarkMode ? "black" : "white",
-                color: isDarkMode ? "white" : "black",
-              },
+            Drawer: {
+                baseStyle: {
+                    dialog: {
+                        bg: isDarkMode ? "black" : "white",
+                        color: isDarkMode ? "white" : "black",
+                    },
+                },
             },
-          },
         },
-      });
-    
+    });
+    const [loginform, setloginform] = useState({
+        username: '',
+        email: '',
+        password: '',
+    });
+    const [registerForm, setRegisterForm] = useState({
+        username: '',
+        email: '',
+        password: '',
+        fullname: '',
+        avatar: null, // Added avatar state
+        coverImage: null, // Added coverImage state
+    });
+
     useEffect(() => {
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
@@ -43,6 +66,51 @@ function Header() {
             localStorage.setItem('theme', 'dark');
         }
         setIsDarkMode(!isDarkMode);
+    };
+
+    const handleFileChange = (event) => {
+        const { name, files } = event.target;
+        setRegisterForm({
+            ...registerForm,
+            [name]: files[0], // Updated to handle both avatar and coverImage
+        });
+    };
+
+    const handlesloginsubmit = async (e) => {
+        e.preventDefault();
+        // console.log(loginform)
+        try {
+            const res = await axios.post(`http://localhost:4000/api/v1/users/login`,loginform,{
+                withCredentials: true
+            });
+            console.log(res.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append('username', registerForm.username);
+        formData.append('email', registerForm.email);
+        formData.append('password', registerForm.password);
+        formData.append('fullname', registerForm.fullname);
+        formData.append('avatar', registerForm.avatar); // Appended avatar image
+        formData.append('coverImage', registerForm.coverImage); // Appended coverImage image
+
+        try {
+            const response = await axios.post('/api/register', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Response:', response.data);
+            // Handle success, such as redirecting or setting user state
+        } catch (error) {
+            console.error('Error:', error);
+            // Handle error, such as displaying an error message
+        }
     };
 
     return (
@@ -89,11 +157,13 @@ function Header() {
                     >
 
                         <label
+                            onClick={onOpenLogin}
                             for="profile"
                             class="relative w-full h-16 p-4  group flex flex-row gap-3 items-center justify-center text-black rounded-xl"
                         >
                             <input class="hidden peer/expand" type="radio" name="path" id="profile" />
                             <svg
+                                onClick={onOpenLogin}
                                 class="peer-hover/expand:scale-125 dark:fill-white peer-hover/expand:text-blue-400 peer-hover/expand:fill-blue-400"
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -146,15 +216,241 @@ function Header() {
                         <DrawerHeader>Create your account</DrawerHeader>
 
                         <DrawerBody>
-                           
+
                         </DrawerBody>
 
                         <DrawerFooter>
-                           
+
                         </DrawerFooter>
                     </DrawerContent>
                 </Drawer>
             </div>
+            <Modal onClose={onCloseLogin} isOpen={isOpenLogin} isCentered>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        {authtypelogin ? (
+                            <div className="">
+                                <section className="rounded-md p-2 bg-white">
+                                    <div className="flex items-center justify-center my-3">
+                                        <div className="xl:mx-auto shadow-md p-4 xl:w-full xl:max-w-sm 2xl:max-w-md">
+                                            <div className="mb-2"></div>
+                                            <h2 className="text-2xl font-bold leading-tight">
+                                                <span >Sign up</span> to Create
+                                                account
+                                            </h2>
+                                            <p className="mt-2 text-base text-gray-600">
+                                                Already have an account?{' '}
+                                                <span onClick={() => setauthtypelogin(false)}>Login-In</span>
+
+                                            </p>
+
+                                            <form className="mt-5" onSubmit={handleSubmit}>
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            Fullname
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Full Name"
+                                                                type="text"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="fullname"
+                                                                value={registerForm.fullname}
+                                                                onChange={(e) =>
+                                                                    setRegisterForm({
+                                                                        ...registerForm,
+                                                                        fullname: e.target.value,
+                                                                    })
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            User Name
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Username"
+                                                                type="text"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="username"
+                                                                value={registerForm.username}
+                                                                onChange={(e) =>
+                                                                    setRegisterForm({
+                                                                        ...registerForm,
+                                                                        username: e.target.value,
+                                                                    })
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            Email Address
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Email"
+                                                                type="email"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="email"
+                                                                value={registerForm.email}
+                                                                onChange={(e) =>
+                                                                    setRegisterForm({
+                                                                        ...registerForm,
+                                                                        email: e.target.value,
+                                                                    })
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center justify-between">
+                                                            <label className="text-base font-medium text-gray-900">
+                                                                Password
+                                                            </label>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Password"
+                                                                type="password"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="password"
+                                                                value={registerForm.password}
+                                                                onChange={(e) =>
+                                                                    setRegisterForm({
+                                                                        ...registerForm,
+                                                                        password: e.target.value,
+                                                                    })
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            Avatar
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                type="file"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="avatar"
+                                                                onChange={handleFileChange} // Ensure handleFileChange handles this input
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            Cover Image
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                type="file"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="coverImage"
+                                                                onChange={handleFileChange} // Ensure handleFileChange handles this input
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                                                            type="submit"
+                                                        >
+                                                            Create Account
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        ) : (
+                            <div className="">
+                                <section className="rounded-md p-2 bg-white">
+                                    <div className="flex items-center justify-center my-3">
+                                        <div className="xl:mx-auto shadow-md p-4 xl:w-full xl:max-w-sm 2xl:max-w-md">
+                                            <div className="mb-2"></div>
+                                            <h2 className="text-2xl font-bold leading-tight">
+                                                Already Have a Account Login
+                                            </h2>
+                                            <p className="mt-2 text-base text-gray-600">
+                                                Don't have a Account? {' '}
+                                                <span onClick={() => setauthtypelogin(true)}>Sign Up</span>
+                                            </p>
+
+                                            <form className="mt-5" onSubmit={handlesloginsubmit}>
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            User Name
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Username"
+                                                                type="text"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="username"
+                                                                value={loginform.username}
+                                                                onChange={(e) => setloginform({ ...loginform, username: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-base font-medium text-gray-900">
+                                                            Email address
+                                                        </label>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Email"
+                                                                type="email"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="email"
+                                                                value={loginform.email}
+                                                                onChange={(e) => setloginform({ ...loginform, email: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center justify-between">
+                                                            <label className="text-base font-medium text-gray-900">
+                                                                Password
+                                                            </label>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <input
+                                                                placeholder="Password"
+                                                                type="password"
+                                                                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                name="password"
+                                                                value={loginform.password}
+                                                                onChange={(e) => setloginform({ ...loginform, password: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
+                                                            type="submit"
+                                                        >
+                                                            Login
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        )}
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
         </>
     );
 }

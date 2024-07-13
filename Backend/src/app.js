@@ -1,16 +1,21 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import dotenv from 'dotenv'
 
 
-const app = express()
+const app = express();
+
+dotenv.config({
+    path : "./env"
+})
 /// use is used for middle wares or configration parts
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-    credentials: true,
+    credentials: true, // Allow credentials
     preflightContinue: false,
     optionsSuccessStatus: 204
     // read about cors or cridentials or whitelisting 
