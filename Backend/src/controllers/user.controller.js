@@ -216,7 +216,9 @@ const logoutUser = asyncHandeler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true, // Ensure secure is true for SameSite=None cookies
+        sameSite: 'None', // Ensure cross-origin cookies work
+        maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
     }
 
     return res.status(200)
@@ -235,9 +237,10 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
     }
 
     try {
+        // console.log(incomingrefreshtoken);
         const decodedToken = jwt.verify(incomingrefreshtoken, process.env.REFRESH_TOKEN_SECRET)
-
-        const user = await User.findById(decodedToken?._id)
+        if (!decodedToken) return res.status(401).json(new ApiError(401, {}, "Something Wrong Happend"))
+        const user = await User.findById(decodedToken?._id).select("-password -accessToken -WatchHistory")
 
         if (!user) {
             throw new ApiError(401, {}, "Invaild Refresh token")
@@ -249,25 +252,31 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+            secure: true, // Ensure secure is true for SameSite=None cookies
+            sameSite: 'None', // Ensure cross-origin cookies work
+            maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
         }
 
-        const { newaccessToken, newrefreshToken } = await genrateAccessandRefreshtokens(user._id)
+        const { accessToken, refreshToken } = await genrateAccessandRefreshtokens(user._id)
 
-        return res.status(200)
-            .cookie("accessToken", newaccessToken, options)
-            .cookie("refreshToken", newrefreshToken, options)
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
             .json(
                 new ApiResponse(
                     200,
-                    { newaccessToken, newrefreshToken },
-                    "AccessToken Refreshed Successfully"
+
+                    { data : user, refreshToken }
+                    ,
+                    "Token Refreshed Successfully"
                 )
             )
     } catch (error) {
+        // console.log(error)
         return res
             .status(401)
-            .json(new ApiError(401, {}, error?.message || "Invaild Refresh Token"));
+            .json(new ApiError(401, {}, "Invaild Refresh Token"));
     }
 })
 
