@@ -11,6 +11,7 @@ import {
     Modal,
     ModalOverlay,
     ModalContent,
+    useToast,
     ModalHeader,
     ModalFooter,
     ModalBody,
@@ -25,6 +26,15 @@ import { useDispatch } from 'react-redux'
 import axios from "axios"
 import { AuthLogin } from '../Store/features/Slice.js';
 function Header() {
+    const toast = useToast();
+    const [loginerror, setlogainerror] = useState({
+        status: false,
+        msg: ""
+    });
+    const [signinerror, setsigninerror] = useState({
+        status: false,
+        msg: ""
+    });
     const { status, userdata } = useSelector((state) => state.auth);
     const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
     const [authtypelogin, setauthtypelogin] = useState(true);
@@ -43,7 +53,7 @@ function Header() {
             },
         },
     });
-    
+
     const [loginform, setloginform] = useState({
         username: '',
         email: '',
@@ -85,34 +95,165 @@ function Header() {
     };
 
 
-
     const handlesloginsubmit = async (e) => {
         e.preventDefault();
-        // console.log(loginform)
+
+        setlogainerror({
+            status: false,
+            msg: ""
+        });
+
+        const toastId = toast({
+            title: "Logging in...",
+            description: "Please wait while we log you in.",
+            status: "loading",
+            duration: null,
+            isClosable: true,
+            position: "top",
+        });
+
         try {
-            const res = await axios.post(`http://localhost:4000/api/v1/users/login`, loginform, {
+            const res = await axios.post(`${import.meta.env.VITE_URL}/api/v1/users/login`, loginform, {
                 withCredentials: true
             });
-            //console.log(res.data.data.refreshToken)
-            dispatch(AuthLogin(res.data.data.user))
-            localStorage.setItem("refreshToken", res.data.data.refreshToken)
-            //console.log(userdata)
+
+            dispatch(AuthLogin(res.data.data.user));
+            localStorage.setItem("refreshToken", res.data.data.refreshToken);
+
+            toast.update(toastId, {
+                title: "Login successful.",
+                description: "You have successfully logged in.",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            onCloseLogin();
+            setsigninerror({
+                status: false,
+                msg: ""
+            })
+            setRegisterForm({
+                username: '',
+                email: '',
+                password: '',
+                fullname: '',
+                avatar: null,
+                coverImage: null,
+            })
+            setlogainerror({
+                status: false,
+                msg: ""
+            });
+            setloginform({
+                username: '',
+                email: '',
+                password: '',
+            });
         } catch (error) {
-            console.log(error)
+            setlogainerror({
+                status: true,
+                msg: error.response.data.errors
+            });
+
+            toast.update(toastId, {
+                title: "Login failed.",
+                description: error.response?.data?.errors || "An error occurred during login.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            console.log(error.response.data.errors);
         }
-    }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
         const formData = new FormData();
         formData.append('username', registerForm.username);
         formData.append('email', registerForm.email);
         formData.append('password', registerForm.password);
         formData.append('fullname', registerForm.fullname);
-        formData.append('avatar', registerForm.avatar); // Appended avatar image
-        formData.append('coverImage', registerForm.coverImage); // Appended coverImage image
+        formData.append('avatar', registerForm.avatar);
+        formData.append('coverImage', registerForm.coverImage);
 
-        console.log(formData)
+        console.log(formData);
+
+        setsigninerror({
+            status: false,
+            msg: ""
+        });
+
+        const toastId = toast({
+            title: "Processing...",
+            description: "Please wait while we process your registration.",
+            status: "loading",
+            duration: null,
+            isClosable: true,
+            position: "top",
+        });
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/users/register`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true
+            });
+
+            dispatch(AuthLogin(response.data.data.user));
+            localStorage.setItem("refreshToken", response.data.data.refreshToken);
+
+            toast.update(toastId, {
+                title: "Registration successful.",
+                description: "You have successfully registered.",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            onCloseLogin();
+            console.log(response.data);
+            setsigninerror({
+                status: false,
+                msg: ""
+            })
+            setRegisterForm({
+                username: '',
+                email: '',
+                password: '',
+                fullname: '',
+                avatar: null,
+                coverImage: null,
+            })
+            setlogainerror({
+                status: false,
+                msg: ""
+            });
+            setloginform({
+                username: '',
+                email: '',
+                password: '',
+            });
+        } catch (error) {
+            console.log(error);
+            setsigninerror({
+                status: true,
+                msg: error?.response?.data?.errors || "Cannot login now. Please try again."
+            });
+
+            toast.update(toastId, {
+                title: "Registration failed.",
+                description: error.response?.data?.errors || "An error occurred during registration.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            console.log(error);
+        }
     };
 
     return (
@@ -263,6 +404,8 @@ function Header() {
                                             <form className="mt-5" onSubmit={handleSubmit}>
                                                 <div className="space-y-4">
                                                     <div>
+
+                                                        {signinerror.status && <h2>{signinerror.msg}</h2>}
                                                         <label className="text-base font-medium text-gray-900">
                                                             Fullname
                                                         </label>
@@ -401,6 +544,7 @@ function Header() {
                                             <form className="mt-5" onSubmit={handlesloginsubmit}>
                                                 <div className="space-y-4">
                                                     <div>
+                                                        {loginerror.status && <h2>{loginerror.msg}</h2>}
                                                         <label className="text-base font-medium text-gray-900">
                                                             User Name
                                                         </label>
