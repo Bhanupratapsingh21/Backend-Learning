@@ -102,7 +102,7 @@ const registerUser = asyncHandeler(async (req, res) => {
 
     const createdUser = await User.findById(user._id).select(
         // kya kya nhi chahiye - sign k sath do yha
-        "-password -refreshToken"
+        "-password -refreshToken -watchHistory"
     )
     if (!createdUser) {
         return res
@@ -124,7 +124,7 @@ const registerUser = asyncHandeler(async (req, res) => {
             new ApiResponse(
                 200,
                 {
-                    user: createdUser, accessToken, refreshToken
+                    user: createdUser, refreshToken
                 },
                 "User logged In SuccessFully"
             )
@@ -173,7 +173,7 @@ const loginUser = asyncHandeler(async (req, res) => {
     const { accessToken, refreshToken } = await genrateAccessandRefreshtokens(user._id)
 
     const loggedinuser = await User.findById(user._id).select(
-        "-password -refreshToken"
+        "-password -refreshToken -watchHistory"
     )
 
     const options = {
@@ -240,7 +240,7 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
         // console.log(incomingrefreshtoken);
         const decodedToken = jwt.verify(incomingrefreshtoken, process.env.REFRESH_TOKEN_SECRET)
         if (!decodedToken) return res.status(401).json(new ApiError(401, {}, "Something Wrong Happend"))
-        const user = await User.findById(decodedToken?._id).select("-password -accessToken -WatchHistory")
+        const user = await User.findById(decodedToken?._id).select("-password -accessToken -watchHistory")
 
         if (!user) {
             throw new ApiError(401, {}, "Invaild Refresh token")

@@ -129,7 +129,7 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
                     _id: 1,
                     videoFile: 1,
                     thumbnail: 1,
-                    title: 1,
+                    tittle: 1,
                     description: 1,
                     duration: 1,
                     views: 1,
