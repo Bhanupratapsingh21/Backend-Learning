@@ -2,7 +2,7 @@
 function TweetsLayout({ tweetsdata }) {
 
     return (
-        <div className="flex-col -ml-4 px-0 py-1 -mt-5 sm:pl-0 sm:gap-4 items-center flex justify-center">
+        <div className="flex-col px-0 py-1 -mt-5 sm:pl-0 sm:gap-4 items-center flex justify-center">
             {tweetsdata?.map((blog) => {
                 const date = blog.createdAt.slice(0, 10)
                 console.log(blog.likedByCurrentUser)

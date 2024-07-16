@@ -1,6 +1,11 @@
-function VideosLeyout({ videodata }) {
+import { Navigate, useNavigate } from "react-router"
 
+function VideosLeyout({ videodata }) {
+    const navigate = useNavigate();
     // console.log(videodata.length)
+    const handlenavigation = (videoid)=>{
+        navigate(`/video/${videoid}`)
+    }
     return (
         <>
             <div className="grid  px-0 py-1 sm:pl-0 w-max gap-4 justify-center grid-cols-1 sm:grid-cols-1  md:grid-cols-2 lg:grid-cols-2  xl:grid-cols-3 ">
@@ -8,7 +13,7 @@ function VideosLeyout({ videodata }) {
                     videodata.map((video) => {
                         // console.log(video)
                         return (
-                            <div key={video._id}>
+                            <div onClick={()=> handlenavigation(video._id)} key={video._id}>
                                 <div className="flex border shadow-md dark:border-gray-900 flex-col dark:bg-black sm:w-[320px] w-[90vw] h-[270px] rounded-xl">
                                     <div><img className="w-full shadow-md rounded-xl h-40" src={video.thumbnail} onError={(e) => e.target.src = 'http://res.cloudinary.com/dhvkjanwa/image/upload/v1720186851/zrirfteydyrh79xaua3q.jpg'} /></div>
                                     <div className="flex items-center pt-6 px-4 h-20 space-x-2">
