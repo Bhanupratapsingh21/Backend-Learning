@@ -42,10 +42,13 @@ function Sidebar() {
             console.log(error)
         }
     }
+
+    
+
   return (
-    <aside className="fixed hidden sm:block left-0 top-0 h-screen w-80 bg-white dark:bg-black rounded-r-3xl dark:text-white  z-10">
+    <aside className="fixed hidden sm:block left-0 top-0 h-screen w-[20vw] bg-white dark:bg-black rounded-r-3xl dark:text-white  z-10">
       <div className="min-h-screen flex bg-gray-100 dark:bg-black">
-                <div className="hidden min-w-40 sm:flex flex-col w-80 bg-white dark:bg-black overflow-hidden">
+                <div className="hidden min-w-40 sm:flex flex-col  w-[20vw] bg-white dark:bg-black overflow-hidden">
                     <Link to={"/"} className="flex items-center justify-center w-40 h-20">
                         <h1 className="text-4xl uppercase text-indigo-500">&lt;/&gt;</h1>
                     </Link>

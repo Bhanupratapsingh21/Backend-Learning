@@ -1,8 +1,59 @@
-function Tweets (){
-    return(
-        <h2>
-            tweets
-        </h2>
-    )
+import React, { useEffect, useState, useRef } from "react";
+import axios from 'axios';
+import TweetsLeyout from "../Components/TweetsLeylot.jsx";
+import LoadingTweets from "../Components/TweetsLeylot.jsx"; // Assume you have a loading component for tweets
+
+function Tweets() {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const observer = useRef();
+
+    const getData = async (page) => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/tweets/getblogsadv?q=newestfirst&limit=10&page=${page}`,{withCredentials:true});
+            console.log(response.data.data.blogs)
+            const tweets = response.data.data.blogs;
+            setData(prevData => [...prevData, ...tweets]);
+            setTotalPages(response.data.data.totalPages);
+        } catch (error) {
+            console.log(error);
+            setError(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getData(page);
+    }, [page]);
+
+    const lastTweetElementRef = useRef();
+
+    useEffect(() => {
+        if (loading) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && page < totalPages) {
+                setPage(prevPage => prevPage + 1);
+            }
+        });
+        if (lastTweetElementRef.current) {
+            observer.current.observe(lastTweetElementRef.current);
+        }
+    }, [loading, page, totalPages]);
+
+    return (
+        <>
+           <TweetsLeyout tweetsdata={data}/>
+            {loading && <LoadingTweets totalno={9} />}
+            <div ref={lastTweetElementRef} />
+            {error && <div className="flex justify-center">Error loading tweets. Please try again later.</div>}
+        </>
+    );
 }
-export default Tweets
+
+export default Tweets;

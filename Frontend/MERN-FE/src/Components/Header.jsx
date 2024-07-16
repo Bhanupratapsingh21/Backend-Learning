@@ -24,7 +24,8 @@ import { useSelector } from 'react-redux';
 import { extendTheme } from "@chakra-ui/react";
 import { useDispatch } from 'react-redux'
 import axios from "axios"
-import { AuthLogin } from '../Store/features/Slice.js';
+import { AuthLogin, AuthLogout } from '../Store/features/Slice.js';
+import { Link } from 'react-router-dom';
 function Header() {
     const toast = useToast();
     const [loginerror, setlogainerror] = useState({
@@ -85,6 +86,40 @@ function Header() {
         }
         setIsDarkMode(!isDarkMode);
     };
+
+
+    const handlelogout = async () => {
+
+        try {
+            const logout = await axios.post(`${import.meta.env.VITE_URL}/api/v1/users/logout`, {}, {
+                withCredentials: true
+            })
+            if (logout.data.success === true) {
+                localStorage.removeItem("refreshToken")
+                dispatch(AuthLogout())
+
+                toast({
+                    title: "Logged out successfully.",
+                    description: "You have been logged out.",
+                    status: "success",
+                    duration: 5000,
+                    position: "top",
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: "Error While Logout Pls Try Again.",
+                    description: "An Error Occured While Logout User.",
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 
     const handleFileChange = (event) => {
         const { name, files } = event.target;
@@ -258,7 +293,7 @@ function Header() {
 
     return (
         <>
-            <header className="fixed w-full h-20 sm:ml-80 bg-white dark:bg-black dark:text-white shadow-lg z-10">
+            <header className="fixed w-full h-20 sm:ml-[570px]  bg-white dark:bg-black dark:text-white shadow-lg z-10">
                 <div className="bg-white sm:w-[50vw] w-[100vw]  h-20 flex items-center justify-between px-2 sm:px-8 dark:bg-black dark:text-white text-black">
                     <label className='sm:hidden block -mr-4'>
                         <div
@@ -289,19 +324,19 @@ function Header() {
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div className='sm:block hidden'>
                         <label className="switch">
                             <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
                             <span className="slider round"></span>
                         </label>
                     </div>
                     <article
-                        class="sm:flex hidden justify-center  left-0 "
+                        class="flex justify-center  left-0 "
                     >
 
                         <label
                             for="profile"
-                            class="relative w-full h-16 p-4  group flex flex-row gap-3 items-center justify-center text-black rounded-xl"
+                            class="relative flex  w-full h-16 sm:p-4  group  flex-row gap-3 items-center justify-center text-black rounded-xl"
                         >
 
                             {
@@ -332,7 +367,7 @@ function Header() {
                         </label>
                         <label
                             for="settings"
-                            class="relative w-full h-16 p-4 ease-in-out duration-300 border-solid border-black/10 group flex flex-row gap-3 items-center justify-center text-black rounded-xl"
+                            class="relative sm:flex hidden w-full h-16 p-4 ease-in-out duration-300 border-solid border-black/10 group  flex-row gap-3 items-center justify-center text-black rounded-xl"
                         >
                             <input
                                 class="hidden peer/expand"
@@ -368,12 +403,82 @@ function Header() {
                     <DrawerOverlay />
                     <DrawerContent>
                         <DrawerCloseButton />
-                        <DrawerHeader>Create your account</DrawerHeader>
+                        <DrawerHeader>
+                            <Link to={"/"} className="flex items-center justify-center w-40 h-20">
+                                <h1 className="text-4xl uppercase text-indigo-500">&lt;/&gt;</h1>
+                            </Link>
+                        </DrawerHeader>
 
                         <DrawerBody>
+                            <ul className="flex flex-col py-4">
+                                <li className='flex justify-start pl-12 mb-4'>
+                                    <label className="switch">
+                                        <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <Link to={"/"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg dark:text-white"><i className="bx bx-home"></i></span>
+                                        <span className="text-sm font-medium">Home</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/videos"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-music"></i></span>
+                                        <span className="text-sm font-medium">Video's</span>
+                                    </Link>
+                                </li>
 
+                                <li>
+                                    <Link to={"/tweets"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-drink"></i></span>
+                                        <span className="text-sm font-medium">Tweet's</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/subscription"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-shopping-bag"></i></span>
+                                        <span className="text-sm font-medium">Subscription's</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/playlist"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
+                                        <span className="text-sm font-medium">Playlist's</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/watch-history"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
+                                        <span className="text-sm font-medium">Watch-History</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/profile"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-user"></i></span>
+                                        <span className="text-sm font-medium">User-Profile</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to={"/"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-bell"></i></span>
+                                        <span className="text-sm font-medium">Notifications</span>
+
+                                    </Link  >
+                                </li>
+                                {
+                                    status ? (
+                                        <li>
+                                            <div onClick={handlelogout} href="#" className="flex flex-row hover:border hover:border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
+                                                <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-log-out"></i></span>
+                                                <span className="text-sm font-medium">Logout</span>
+                                            </div  >
+                                        </li>
+                                    ) : null
+                                }
+                            </ul>
                         </DrawerBody>
-
                         <DrawerFooter>
 
                         </DrawerFooter>
