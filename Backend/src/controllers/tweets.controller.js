@@ -68,9 +68,8 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
 });
-
 const getblogsAdv = asyncHandeler(async (req, res) => {
-    // first get the data from params and quarrys   
+    // first get the data from params and queries   
     const { q, limit, page } = req.query;
     let sortOption = {};
     if (q === "newestfirst") {
@@ -79,17 +78,53 @@ const getblogsAdv = asyncHandeler(async (req, res) => {
         sortOption = { createdAt: 1 };
     }
 
-    // then added a sortoption to sort it ar the oldest first and newst first
-
+    // then add a sortOption to sort it by the oldest first and newest first
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
+    const userId = req.user ? req.user._id : null;
 
     try {
-        const blogs = await Tweet.find()
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limitOptions);
+        const blogs = await Tweet.aggregate([
+            // Match the tweets
+            { $match: {} },
+            // Sort tweets based on the sortOption
+            { $sort: sortOption },
+            // Skip and limit for pagination
+            { $skip: skip },
+            { $limit: limitOptions },
+            // Lookup likes for each tweet
+            {
+                $lookup: {
+                    from: 'likes',
+                    let: { tweetId: '$_id' },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ['$tweet', '$$tweetId'] } } },
+                        {
+                            $group: {
+                                _id: null,
+                                likeCount: { $sum: 1 },
+                                likedByCurrentUser: {
+                                    $max: {
+                                        $cond: [{ $eq: ['$likedBy', userId] }, true, false]
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    as: 'likes'
+                }
+            },
+            // Add likeCount and likedByCurrentUser to each tweet
+            {
+                $addFields: {
+                    likeCount: { $ifNull: [{ $arrayElemAt: ['$likes.likeCount', 0] }, 0] },
+                    likedByCurrentUser: userId ? { $ifNull: [{ $arrayElemAt: ['$likes.likedByCurrentUser', 0] }, false] } : false
+                }
+            },
+            // Remove the likes array as it is no longer needed
+            { $project: { likes: 0 } }
+        ]);
 
         const totalBlogs = await Tweet.countDocuments();
         const totalPages = Math.ceil(totalBlogs / limitOptions);
@@ -105,8 +140,11 @@ const getblogsAdv = asyncHandeler(async (req, res) => {
         console.error('Error fetching blogs:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
+});
 
-})
+
+
+
 
 const updateeditblogs = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
