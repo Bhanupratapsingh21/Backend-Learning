@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const VideoPlayer = ({ id, publicId, width, height, ...props }) => {
+const VideoPlayer = ({ id, videopublicId, thumbnail, width, height, ...props }) => {
   const videoRef = useRef();
   const cloudinaryRef = useRef();
   const playerRef = useRef();
@@ -12,6 +12,7 @@ const VideoPlayer = ({ id, publicId, width, height, ...props }) => {
         cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
         controls: true,
         showJumpControls: true,
+        autoplay: false,
         pictureInPictureToggle: true,
         logoOnclickUrl: 'https://bhanu-pratap-portfolio.vercel.app/',
         logoImageUrl: 'https://i.pinimg.com/236x/01/4e/7c/014e7c41682d5e1f96bfd171b52988e9.jpg',
@@ -24,25 +25,26 @@ const VideoPlayer = ({ id, publicId, width, height, ...props }) => {
     }
 
     // Load the video based on publicId
-    playerRef.current.source(publicId, {
-      poster: 'https://res.cloudinary.com/dhvkjanwa/image/upload/vyjwbzikk0avewzhip4o.jpg'
+    playerRef.current.source(videopublicId, {
+      poster: thumbnail
     });
 
     return () => {
       // Cleanup
       playerRef.current.dispose();
     };
-  }, [publicId]);
+  }, [videopublicId]);
 
   return (
-    <div style={{  aspectRatio: `${width} / ${height}` }}>
+    <div className='-ml-4 fixed w-[100vw] -mt-4 sm:w-[50vw]' style={{ aspectRatio: `${width} / ${height}` }}>
       <video
+        
         ref={videoRef}
         id={id}
         className="cld-video-player cld-fluid"
         controls
         autoPlay
-        data-cld-public-id={publicId}
+        data-cld-public-id={videopublicId}
         width={width}
         height={height}
         {...props}

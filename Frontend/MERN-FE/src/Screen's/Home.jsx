@@ -50,7 +50,7 @@ function Home() {
             <VideosLeyout videodata={data} />
             {loading && <Loadingvideo totalno={9} />}
             <div ref={lastVideoElementRef} />
-            {error && <div>Error loading videos. Please try again later.</div>}
+            {error && <div className="flex justify-center items-center">Error loading videos. Please try again later.</div>}
         </>
     );
 }
