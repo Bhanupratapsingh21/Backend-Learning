@@ -167,7 +167,9 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
 
 const handlegetVideoById = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
-
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json(new ApiError(400, {}, "Invalid video ID format"));
+    }
     try {
         // Increment the view count and fetch the updated video
         const video = await Video.findByIdAndUpdate(_id, { $inc: { views: 1 } }, { new: true });
@@ -224,14 +226,14 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
 
     try {
         const aggregationPipeline = [
-            { 
-                $match: { 
-                    tegs: { 
-                        $regex: tagsArray.join('|'), 
-                        $options: 'i' 
-                    }, 
-                    isPublished: true 
-                } 
+            {
+                $match: {
+                    tegs: {
+                        $regex: tagsArray.join('|'),
+                        $options: 'i'
+                    },
+                    isPublished: true
+                }
             },
             { $sort: sortOption },
             { $skip: skip },
@@ -267,12 +269,12 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
 
         const videos = await Video.aggregate(aggregationPipeline);
 
-        const totalVideos = await Video.countDocuments({ 
-            tags: { 
-                $regex: tagsArray.join('|'), 
-                $options: 'i' 
-            }, 
-            isPublished: true 
+        const totalVideos = await Video.countDocuments({
+            tags: {
+                $regex: tagsArray.join('|'),
+                $options: 'i'
+            },
+            isPublished: true
         });
         const totalPages = Math.ceil(totalVideos / limitOptions);
 
