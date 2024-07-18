@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import Loadingvideo from "../Components/Videosloading.jsx";
 import VideosLeyout from "../Components/Videosleylot.jsx";
+import Headertwo from "../Components/Header2.jsx";
 
 function Home() {
     const [data, setdata] = useState([]);
@@ -46,7 +47,8 @@ function Home() {
     }, [loading, page, totalPages]);
 
     return (
-        <>
+        <>  
+            <Headertwo/>
             <VideosLeyout videodata={data} />
             {loading && <Loadingvideo totalno={9} />}
             <div ref={lastVideoElementRef} />

@@ -293,7 +293,7 @@ function Header() {
 
     return (
         <>
-            <header className="fixed w-full h-20 sm:ml-[570px]  bg-white dark:bg-black dark:text-white shadow-lg z-10">
+            <header className="fixed w-full h-20 sm:ml-[570px]  bg-white dark:bg-black dark:text-white  z-10">
                 <div className="bg-white sm:w-[50vw] w-[100vw]  h-20 flex items-center justify-between px-2 sm:px-8 dark:bg-black dark:text-white text-black">
                     <label className='sm:hidden block -mr-4'>
                         <div

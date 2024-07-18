@@ -5,6 +5,7 @@ import AllRoutes from './Routes/AllRoutes.jsx';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { AuthLogin, AuthLogout } from './Store/features/Slice.js';
+import Headertwo from './Components/Header2.jsx';
 function App() {
   const [loading, setloading] = useState(true);
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ function App() {
             <div className="sm:px-10 p-4 sm:py-6">
               <AllRoutes />
             </div>
+          
           </main>
         </>
       ) :

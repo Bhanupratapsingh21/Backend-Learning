@@ -2,8 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import TweetsLeyout from "../Components/TweetsLeylot.jsx";
 import LoadingTweets from "../Components/TweetsLeylot.jsx"; // Assume you have a loading component for tweets
-
+import { useSelector } from 'react-redux'
+import Headertwo from "../Components/Header2.jsx";
 function Tweets() {
+    const { status, userdata } = useSelector((state) => state.auth);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -14,7 +16,7 @@ function Tweets() {
     const getData = async (page) => {
         try {
             setLoading(true);
-            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/tweets/getblogsadv?q=newestfirst&limit=10&page=${page}`,{withCredentials:true});
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/tweets/getblogsadv?q=newestfirst&limit=10&page=${page}`, { withCredentials: true });
             console.log(response.data.data.blogs)
             const tweets = response.data.data.blogs;
             setData(prevData => [...prevData, ...tweets]);
@@ -29,7 +31,7 @@ function Tweets() {
 
     useEffect(() => {
         getData(page);
-    }, [page]);
+    }, [page,status]);
 
     const lastTweetElementRef = useRef();
 
@@ -47,8 +49,9 @@ function Tweets() {
     }, [loading, page, totalPages]);
 
     return (
-        <>
-           <TweetsLeyout tweetsdata={data}/>
+        <>  
+            <Headertwo/>
+            <TweetsLeyout tweetsdata={data} />
             {loading && <LoadingTweets totalno={9} />}
             <div ref={lastTweetElementRef} />
             {error && <div className="flex justify-center">Error loading tweets. Please try again later.</div>}
