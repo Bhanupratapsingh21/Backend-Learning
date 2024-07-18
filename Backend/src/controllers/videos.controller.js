@@ -164,12 +164,12 @@ const handlegetvideoadv = asyncHandeler(async (req, res) => {
 
 
 })
-
 const handlegetVideoById = asyncHandeler(async (req, res) => {
     const _id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json(new ApiError(400, {}, "Invalid video ID format"));
     }
+
     try {
         // Increment the view count and fetch the updated video
         const video = await Video.findByIdAndUpdate(_id, { $inc: { views: 1 } }, { new: true });
@@ -187,24 +187,39 @@ const handlegetVideoById = asyncHandeler(async (req, res) => {
 
         if (req.user) {
             // Update the user's watch history
-            const updatehistory = await User.findByIdAndUpdate(req.user._id, {
+            await User.findByIdAndUpdate(req.user._id, {
                 $push: { watchHistory: new mongoose.Types.ObjectId(video._id) }
             }, { new: true });
-            const getsubscribedstate = await Subscription.findOne({ subscriber: req.user._id, channel: video.owner })
+
+            const getsubscribedstate = await Subscription.findOne({ subscriber: req.user._id, channel: video.owner });
             channelsubscribestate = !!getsubscribedstate;
+
             // Check if the user has liked the video
             const getlikebyuserstate = await like.findOne({ video: _id, likedBy: req.user._id });
             likebyuserstate = !!getlikebyuserstate; // Convert to boolean
         }
 
-        // Return the response with the video, like count, and user like state
-        return res.status(200).json(new ApiResponse(200, { video, LikeCount, totalSubs, likebyuserstate, channelsubscribestate }, "Video Fetched Successfully"));
+        // Use aggregation pipeline to get the channel details
+        const channelDetails = await User.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(video.owner) } },
+            { $project: { _id: 1, username: 1, avatar: 1 } }
+        ]);
+
+        if (!channelDetails || channelDetails.length === 0) {
+            return res.status(404).json(new ApiError(404, {}, "Channel Not Found"));
+        }
+
+        const channel = channelDetails[0];
+
+        // Return the response with the video, like count, user like state, and channel details
+        return res.status(200).json(new ApiResponse(200, { video, LikeCount, totalSubs, likebyuserstate, channelsubscribestate, channel }, "Video Fetched Successfully"));
 
     } catch (error) {
         console.error(error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error"));
     }
-})
+});
+
 const handlegetvideobytegs = asyncHandeler(async (req, res) => {
     const { tags } = req.body;
     if (!tags) {

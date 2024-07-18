@@ -5,7 +5,7 @@ import { ApiError } from "../utils/apierror.js";
 import { ApiResponse } from "../utils/apiresponse.js";
 import verifypostowner from "../utils/checkforpostowner.js";
 import { like } from "../models/like.model.js";
-
+import mongoose from "mongoose";
 const handleaddblogs = asyncHandeler(async (req, res) => {
     try {
         // Check if profile image file exists
@@ -69,7 +69,7 @@ const getblogsbasic = asyncHandeler(async (req, res) => {
     }
 });
 const getblogsAdv = asyncHandeler(async (req, res) => {
-    // first get the data from params and queries   
+    // Get data from params and queries   
     const { q, limit, page } = req.query;
     let sortOption = {};
     if (q === "newestfirst") {
@@ -78,22 +78,18 @@ const getblogsAdv = asyncHandeler(async (req, res) => {
         sortOption = { createdAt: 1 };
     }
 
-    // then add a sortOption to sort it by the oldest first and newest first
+    // Pagination options
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
-    const userId = req.user ? req.user._id : null;
+    const userId = req.user ? new mongoose.Types.ObjectId(req.user._id) : null;
 
     try {
         const blogs = await Tweet.aggregate([
-            // Match the tweets
             { $match: {} },
-            // Sort tweets based on the sortOption
             { $sort: sortOption },
-            // Skip and limit for pagination
             { $skip: skip },
             { $limit: limitOptions },
-            // Lookup likes for each tweet
             {
                 $lookup: {
                     from: 'likes',
@@ -122,8 +118,34 @@ const getblogsAdv = asyncHandeler(async (req, res) => {
                     likedByCurrentUser: userId ? { $ifNull: [{ $arrayElemAt: ['$likes.likedByCurrentUser', 0] }, false] } : false
                 }
             },
-            // Remove the likes array as it is no longer needed
-            { $project: { likes: 0 } }
+            {
+                $lookup: {
+                    from: 'subscriptions',
+                    let: { ownerId: '$createdBy._id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$channel', '$$ownerId'] },
+                                        { $eq: ['$subscriber', userId] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $project: { _id: 1 } }
+                    ],
+                    as: 'subscription'
+                }
+            },
+            // Add subscribedByCurrentUser field
+            {
+                $addFields: {
+                    subscribedByCurrentUser: { $gt: [{ $size: '$subscription' }, 0] }
+                }
+            },
+            // Remove the likes and subscription array as they are no longer needed
+            { $project: { likes: 0, subscription: 0 } }
         ]);
 
         const totalBlogs = await Tweet.countDocuments();
@@ -141,7 +163,6 @@ const getblogsAdv = asyncHandeler(async (req, res) => {
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
 });
-
 
 
 
@@ -254,7 +275,7 @@ const handlegetindividualblog = asyncHandeler(async (req, res) => {
             const getlikebyuserstate = await like.findOne({ comment: _id, likedBy: req.user._id });
             likebyuserstate = !!getlikebyuserstate; // Convert to boolean
         }
-        return res.status(200).json(new ApiResponse(200, {blog,likeCount,likebyuserstate}, "Tweet Fetched Successfully"));
+        return res.status(200).json(new ApiResponse(200, { blog, likeCount, likebyuserstate }, "Tweet Fetched Successfully"));
     } catch (error) {
         console.error(error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));

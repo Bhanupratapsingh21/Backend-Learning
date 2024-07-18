@@ -36,12 +36,12 @@ const VideoPlayer = ({ id, videopublicId, thumbnail, width, height, ...props }) 
   }, [videopublicId]);
 
   return (
-    <div className='-ml-4 fixed w-[100vw] -mt-4 sm:w-[50vw]' style={{ aspectRatio: `${width} / ${height}` }}>
+    <div className='-ml-4 w-[100vw]  z-51 -mt-4 sm:w-[50vw]' style={{ aspectRatio: `${width} / ${height}` }}>
       <video
         
         ref={videoRef}
         id={id}
-        className="cld-video-player cld-fluid"
+        className="cld-video-player cld-fluid rounded-xl"
         controls
         autoPlay
         data-cld-public-id={videopublicId}
