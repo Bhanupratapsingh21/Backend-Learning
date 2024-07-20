@@ -70,8 +70,8 @@ function Tweet({ tweet, status, toast }) {
     }, [status, tweet._id, likeState, toast]);
 
     return (
-        <div key={tweet._id} className="dark:bg-black dark:shadow-gray-800 border-t   shadow-md sm:rounded-md bg-white">
-            <div className="bg-white dark:bg-black w-[100vw] sm:w-96 border-t -mt-0  border-y-gray-600">
+        <div key={tweet._id} className="dark:bg-black sm:rounded-md bg-white">
+            <div className="bg-white dark:bg-black w-[100vw] sm:w-96 -mt-0 border-y-gray-600">
                 <div className="flex items-center px-4 py-3">
                     <img className="h-8 w-8 rounded-full" src={tweet.createdBy.profileimg} alt="Profile" />
                     <div className="ml-3">
@@ -81,16 +81,15 @@ function Tweet({ tweet, status, toast }) {
                     <div className="flex justify-end items-end w-[70vw]">
                         <button
                             onClick={toggleSubscribe}
-                            className={`${
-                                subscribe ? 'bg-[#292929]' : 'bg-red-600'
-                            } border-2 dark:border-[#3e3e3e] rounded-lg text-white px-2 py-1 text-sm hover:border-[#fff] cursor-pointer transition`}
+                            className={`${subscribe ? 'bg-[#292929]' : 'bg-red-600'
+                                } border-2 dark:border-[#3e3e3e] rounded-lg text-white px-2 py-1 text-sm hover:border-[#fff] cursor-pointer transition`}
                         >
                             {subscribe ? 'Subscribed' : 'Subscribe'}
                         </button>
                     </div>
                 </div>
-                <div className="h-[340px] border-t border-b border-y-gray-600 grid items-center max-w-[100vw] sm:max-h-[380px]">
-                    <img className="aspect-square max-h-[330px]" src={tweet.coverImageURL.url} alt="Tweet" />
+                <div className="border-t border-b border-y-gray-600 grid items-center max-w-[100vw]">
+                    <img className="aspect-w-16  object-cover " src={tweet.coverImageURL.url} alt="Tweet" />
                 </div>
                 <div className="flex items-center justify-between mx-4 mt-3 mb-2">
                     <div className="flex justify-center items-center">
@@ -132,10 +131,11 @@ function TweetsLayout({ tweetsdata }) {
     return (
         <div className="flex flex-col px-0 py-1 -mt-5 sm:pl-0 sm:gap-4 items-center justify-center">
             {tweetsdata?.map((tweet) => {
-                console.log(tweet); 
-            return(
-                <Tweet key={tweet._id} tweet={tweet} status={status} toast={toast} />
-            )}
+                console.log(tweet);
+                return (
+                    <Tweet key={tweet._id} tweet={tweet} status={status} toast={toast} />
+                )
+            }
             )}
         </div>
     );

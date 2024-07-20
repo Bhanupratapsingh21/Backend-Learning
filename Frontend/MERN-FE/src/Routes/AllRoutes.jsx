@@ -7,6 +7,7 @@ import Videos from "../Screen's/Videos.jsx";
 import Userwatchhistory from "../Screen's/Watch-History.jsx"
 import Profile from "../Screen's/Profile.jsx";
 import IndividualVideo from "../Screen's/Individual.Video.jsx";
+import Upload from "../Screen's/Uploadvideo.jsx";
 function AllRoutes() {
     return (
         <Routes>
@@ -16,8 +17,10 @@ function AllRoutes() {
             <Route path="/profile" element={<Profile/>} />
             <Route path="/subscription" element={<Subscription/>} />
             <Route path="/videos" element={<Videos/>} />
+            <Route  path="/upload" element={<Upload/>} />
             <Route path="/video/:videoid" element={<IndividualVideo/>} />
             <Route path="/watch-history" element={<Userwatchhistory/>} />
+
         </Routes>
     );
 }

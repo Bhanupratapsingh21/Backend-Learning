@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router"
 function VideosLeyout({ videodata }) {
     const navigate = useNavigate();
     // console.log(videodata.length)
-    const handlenavigation = (videoid)=>{
+    const handlenavigation = (videoid) => {
         navigate(`/video/${videoid}`)
     }
     return (
@@ -13,12 +13,12 @@ function VideosLeyout({ videodata }) {
                     videodata.map((video) => {
                         // console.log(video)
                         return (
-                            <div onClick={()=> handlenavigation(video._id)} key={video._id}>
-                                <div className="flex border shadow-md dark:border-gray-900 flex-col dark:bg-black sm:w-[320px] w-[90vw] h-[270px] rounded-xl">
+                            <div onClick={() => handlenavigation(video._id)} key={video._id}>
+                                <div className="flex border shadow-md dark:border-gray-900 flex-col dark:bg-black sm:w-[320px] w-[90vw] pb-3 rounded-xl">
                                     <div><img className="w-full shadow-md rounded-xl h-40" src={video.thumbnail} onError={(e) => e.target.src = 'http://res.cloudinary.com/dhvkjanwa/image/upload/v1720186851/zrirfteydyrh79xaua3q.jpg'} /></div>
-                                    <div className="flex items-center pt-6 px-4 h-20 space-x-2">
+                                    <div className="flex items-center pt-2  px-4 h-20 space-x-2">
                                         <div className="flex" ><img className="h-10 w-10 rounded-full" src={video.owneravatar} alt="" /></div>
-                                        <div className="space-y-1 flex flex-col justify-center  h-15 w-[245px] left">
+                                        <div className="space-y-1 flex flex-col justify-center w-[245px] left">
                                             <div className="dark:text-white text-md text-black overflow-hidden max-h-[50px] -mb-1">{video.tittle}</div>
                                             <div className="flex dark:text-gray-400 text-md items-center">
                                                 <div className="w-[115px] h-[25px] overflow-hidden ">{video.ownerusername}</div>

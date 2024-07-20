@@ -411,7 +411,8 @@ function Header() {
 
                         <DrawerBody>
                             <ul className="flex flex-col py-4">
-                                <li className='flex justify-start pl-12 mb-4'>
+                                <li className='flex items-center justify-between pl-12 mb-4'>
+                                    DarkMode : 
                                     <label className="switch">
                                         <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
                                         <span className="slider round"></span>
