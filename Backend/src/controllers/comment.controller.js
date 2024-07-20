@@ -10,9 +10,15 @@ import verifypostowner from "../utils/checkforpostowner.js"
 
 const getPostComments = asyncHandeler(async (req, res) => {
     const postId = req.params.postId;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json(new ApiError(400, {}, "Invalid video ID format"));
+    }
+    // console.log(req.user)
+
     const { q, limit, page } = req.query;
 
-    const userId = req.user._id; // Assuming you have req.user._id available for the authenticated user
+    const userId = req?.user._id;
 
     let sortOptions = { createdAt: -1 };
     if (q === "newestfirst") {
@@ -107,9 +113,13 @@ const getPostComments = asyncHandeler(async (req, res) => {
 const addComment = asyncHandeler(async (req, res) => {
     // check login 
     // check data 
-    const postId = req.params.postId
+    const postId = req.params.postId;
+    //console.log(postId)
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json(new ApiError(400, {}, "Invalid video ID format"));
+    }
     const commenton = req.params.type
-
+    console.log(postId)
     const { content } = req.body
     if (!content) {
         return res.status(401).json(new ApiError(401, {}, "Please Provide Content For Comment"));
@@ -139,7 +149,7 @@ const addComment = asyncHandeler(async (req, res) => {
 
     const comment = await Comment.create({
         content,
-        commenton,
+        commenton: commenton.toString(),
         postId,
         owner: req.user._id
     });

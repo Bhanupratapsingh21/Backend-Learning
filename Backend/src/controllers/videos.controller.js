@@ -39,35 +39,42 @@ const handleuploadvideo = asyncHandeler(async (req, res) => {
     if (!videofilelocal || !thumbnaillocal) {
         return res.status(401).json(new ApiError(401, {}, "Video File And Thumbnail Are Required"))
     }
-    // console.log("done")
-    const videofile = await uploadOnCloudinary(videofilelocal);
-    const thumbnail = await uploadOnCloudinary(thumbnaillocal);
+    try {
+        // console.log("done")
+        const videofile = await uploadOnCloudinary(videofilelocal);
+        const thumbnail = await uploadOnCloudinary(thumbnaillocal);
 
-    if (!videofile || !thumbnail) {
-        return res.status(501).json(new ApiError(501, {}, "An Error occurred While Uploading"))
-    }
+        if (!videofile || !thumbnail) {
+            return res.status(501).json(new ApiError(501, {}, "An Error occurred While Uploading"))
+        }
 
-    const UploadedVideo = await Video.create({
-        tittle,
-        description,
-        isPublished,
-        tegs,
-        videoFile: videofile.url,
-        thumbnail: thumbnail.url,
-        duration: videofile.duration,
-        views: 0,
-        owner: req.user._id,
-    })
+        const UploadedVideo = await Video.create({
+            tittle,
+            description,
+            isPublished,
+            tegs,
+            videoFile: videofile.url,
+            thumbnail: thumbnail.url,
+            duration: videofile.duration,
+            views: 0,
+            owner: req.user._id,
+        })
 
-    if (!UploadedVideo) {
+        if (!UploadedVideo) {
+            return res
+                .status(501)
+                .json(new ApiError(501, {}, "internal Server Error"))
+        }
+        return res
+            .status(201)
+            .json(new ApiResponse(201, UploadedVideo, "Video Uploaded SuccessFully"));
+
+    } catch (error) {
+        console.log(error)
         return res
             .status(501)
             .json(new ApiError(501, {}, "internal Server Error"))
     }
-    return res
-        .status(201)
-        .json(new ApiResponse(201, UploadedVideo, "Video Uploaded SuccessFully"));
-
 });
 
 const handlegetvideosbytimeline = asyncHandeler(async (req, res) => {
