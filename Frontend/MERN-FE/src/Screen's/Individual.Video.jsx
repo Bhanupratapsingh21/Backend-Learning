@@ -61,7 +61,11 @@ function IndividualVideo() {
         if (lastCommentElementRef.current) {
             observer.current.observe(lastCommentElementRef.current);
         }
+        return () => {
+            if (observer.current) observer.current.disconnect();
+        }
     }, [commentsloading, page, totalPages]);
+
 
 
     // Function to extract Cloudinary public ID from the video URL
@@ -73,11 +77,24 @@ function IndividualVideo() {
     };
 
     const postcomments = async () => {
+        setcommentsLoading(false);
+        setcommentsError(false);
         try {
+            const comment = {
+                content: commenttext,
+                user: {
+                    ...userdata
+                }
+            }
+            setComments([...comments, comment])
             const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
-            console.log(response);
+            console.log(comments);
+
         } catch (error) {
             console.log(error)
+            setcommentsError(true);
+        } finally {
+            setcommentsLoading(false);
         }
     }
 
@@ -179,8 +196,10 @@ function IndividualVideo() {
     }
 
     useEffect(() => {
-        fetchComments(page);
-    }, [page]);
+        if (viewcomment) {
+            fetchComments();
+        }
+    }, [page, viewcomment]);
 
     useEffect(() => {
         getVideo();
@@ -191,7 +210,7 @@ function IndividualVideo() {
             <Headertwo />
             <div className="dark:text-white mb-10 text-black">
 
-                {loading && <div className="flex h-screen justify-center text-lg items-center">
+                {loading && <div className="flex justify-center text-lg items-center">
                     <div className='flex w-[100vw]  text-white dark:bg-black justify-center items-center'>
                         <div className="text-center">
                             <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-yellow-500 mx-auto"></div>
@@ -228,8 +247,8 @@ function IndividualVideo() {
                                         </div>
                                     )
                                 }
-                                <div className="hidden lg:block xl:absolute z-50 xl:w-80 lg:w-[23vw] w-80 m-4">
-                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => setviewcomments(!viewcomment)} >
+                                <div className="hidden lg:block xl:absolute z-50 xl:w-80 lg:w-[25vw] w-80 m-4">
+                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => { setviewcomments(!viewcomment); handleFetchComments() }} >
                                         <h2>Comments</h2>
                                         <div>
                                             <svg viewBox="0 0 360 360" className="mt-1 dark:fill-white" width={15} xml:space="preserve">
@@ -241,43 +260,42 @@ function IndividualVideo() {
                                                 </g>
                                             </svg>
                                         </div>
+
+                                    </div>
+                                    <div class="relative xl:w-80 mb-2 lg:w-[25vw] w-80 mt-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Add Comment"
+                                            class="block  lg:w-[24vw] w-80   rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                            onChange={(e) => setcommenttext(e.target.value)}
+                                            value={commenttext}
+                                        />
+                                        <div class="absolute inset-y-1 right-4 flex justify-end">
+                                            <button
+                                                type="submit"
+                                                onClick={postcomments}
+                                                aria-label="Submit"
+                                                class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
+                                            >
+                                                <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
+                                                    <path
+                                                        fill="currentColor"
+                                                        fill-rule="evenodd"
+                                                        clip-rule="evenodd"
+                                                        d="M16 3 10 .5v2H0v1h10v2L16 3Z"
+                                                    ></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     {
                                         viewcomment && (
                                             <>
-                                                <div className="h-[390px] absolute overflow-y-scroll">
+                                                <div className="h-[320px] absolute  overflow-y-scroll">
                                                     <CommentsLayout commentData={comments} />
                                                     {commentsloading && <LoadingComment totalNo={9} />}
                                                     <div ref={lastCommentElementRef} />
                                                     {commentserror && <div className="flex justify-center w-72 text-center items-center">This Video Don't Have Any Comments</div>}
-                                                    <div class="relative w-[20vw] mt-12">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Add Comment"
-                                                            
-                                                            class="block  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                                            onChange={(e) => setcommenttext(e.target.value)}
-                                                            value={commenttext}
-                                                        />
-                                                        <div class="absolute inset-y-1 right-6 flex justify-end">
-                                                            <button
-                                                                type="submit"
-                                                                onClick={postcomments}
-                                                                aria-label="Submit"
-                                                                class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
-                                                            >
-                                                                <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
-                                                                    <path
-                                                                        fill="currentColor"
-                                                                        fill-rule="evenodd"
-                                                                        clip-rule="evenodd"
-                                                                        d="M16 3 10 .5v2H0v1h10v2L16 3Z"
-                                                                    ></path>
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
                                                 </div>
                                             </>
                                         )
@@ -290,7 +308,7 @@ function IndividualVideo() {
                         <div className=" w-[100vw] max-h-max bg-white dark:bg-black -ml-4 sm:w-[50vw] mt-1 ">
                             <div className="p-2">
                                 <div>
-                                    <h2 className="text-xl w-[97vw] sm:w-96 lg:w-max overflow-hidden">{video.video.tittle}</h2>
+                                    <h2 className="text-xl w-[97vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
                                 </div>
                                 <div>
                                     <div className="flex mt-2 justify-left items-center py-2">
@@ -345,7 +363,8 @@ function IndividualVideo() {
                                             <div class="font-semibold ml-2 sm:ml-4 text-sm">{likecount} likes</div>
                                         </div>
                                     </div>
-                                    <div className="lg:hidden mt-2 z-50 -ml-2 sm:w-80 w-[100vw]">
+                                    <div className="lg:hidden mt-5 z-50 -ml-2 sm:w-80 w-[100vw]">
+
                                         <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => setviewcomments(!viewcomment)} >
                                             <h2>Comments</h2>
                                             <div>
@@ -359,15 +378,42 @@ function IndividualVideo() {
                                                 </svg>
                                             </div>
                                         </div>
+                                        <div class="relative bottom-1 mb-2 mt-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Add Comment"
+                                                class="block sm:w-80 w-[99vw]  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                onChange={(e) => setcommenttext(e.target.value)}
+                                                value={commenttext}
+                                            />
+                                            <div class="absolute inset-y-1 right-6 flex justify-end">
+                                                <button
+                                                    type="submit"
+                                                    onClick={postcomments}
+                                                    aria-label="Submit"
+                                                    class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
+                                                >
+                                                    <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
+                                                        <path
+                                                            fill="currentColor"
+                                                            fill-rule="evenodd"
+                                                            clip-rule="evenodd"
+                                                            d="M16 3 10 .5v2H0v1h10v2L16 3Z"
+                                                        ></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div className="">
                                             {
                                                 viewcomment && (
                                                     <>
-                                                        <div className="h-screen w-max dark:bg-black bg-white p-2 overflow-y-scroll">
+                                                        <div className=" w-max dark:bg-black bg-white p-2 overflow-y-scroll">
                                                             <CommentsLayout commentData={comments} />
                                                             {commentsloading && <LoadingComment totalNo={9} />}
                                                             <div ref={lastCommentElementRef} />
                                                             {commentserror && <div className="flex text-center w-[90vw] sm:w-max justify-center items-center">This Video Don't Have Any Comments</div>}
+
                                                         </div>
                                                     </>
                                                 )
@@ -378,7 +424,6 @@ function IndividualVideo() {
                                 </div>
                             </div>
                         </div>
-
                     </>
                 )
                 }

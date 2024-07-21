@@ -41,7 +41,7 @@ const VideoPlayer = ({ id, videopublicId, thumbnail, width, height, ...props }) 
         
         ref={videoRef}
         id={id}
-        className="cld-video-player cld-fluid rounded-xl"
+        className="cld-video-player cld-fluid dark:rounded-xl"
         controls
         autoPlay
         data-cld-public-id={videopublicId}
