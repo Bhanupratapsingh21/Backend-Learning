@@ -46,7 +46,7 @@ const toggleCommentLike = asyncHandeler(async (req, res) => {
 
         // if like already exist by same user id and video then dislike it 
 
-        const unlikecomment = await like.findOneAndDelete({ commnet: commentId, likedBy: req.user._id })
+        const unlikecomment = await like.findOneAndDelete({ comment: commentId, likedBy: req.user._id })
         if (unlikecomment) {
             return res.status(201).json(new ApiResponse(201, {}, "Commnet unlike SuccussFully"))
         }

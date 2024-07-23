@@ -49,6 +49,25 @@ const getPostComments = asyncHandeler(async (req, res) => {
             {
                 $lookup: {
                     from: "likes",
+                    let: { commentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$comment", "$$commentId"] }
+                            }
+                        }
+                    ],
+                    as: "likes"
+                }
+            },
+            {
+                $addFields: {
+                    likeCount: { $size: "$likes" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "likes",
                     let: { commentId: "$_id", userId: new mongoose.Types.ObjectId(userId) },
                     pipeline: [
                         {
@@ -83,7 +102,8 @@ const getPostComments = asyncHandeler(async (req, res) => {
                         fullname: 1,
                         avatar: 1
                     },
-                    commentLikeState: 1
+                    commentLikeState: 1,
+                    likeCount: 1
                 }
             }
         ];
@@ -119,7 +139,7 @@ const addComment = asyncHandeler(async (req, res) => {
         return res.status(400).json(new ApiError(400, {}, "Invalid video ID format"));
     }
     const commenton = req.params.type
-    console.log(postId)
+    //console.log(postId)
     const { content } = req.body
     if (!content) {
         return res.status(401).json(new ApiError(401, {}, "Please Provide Content For Comment"));
