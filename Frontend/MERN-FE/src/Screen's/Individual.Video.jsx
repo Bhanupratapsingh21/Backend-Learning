@@ -37,7 +37,7 @@ function IndividualVideo() {
             setcommentsLoading(true);
             const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${videoid}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
-
+            console.log(commentsData)
             setComments(prevComments => [...prevComments, ...commentsData]);
             setTotalPages(response.data.data.totalPages);
         } catch (error) {
@@ -87,6 +87,7 @@ function IndividualVideo() {
                 }
             }
             setComments([...comments, comment])
+            setcommenttext("");
             const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
             console.log(comments);
 
@@ -198,6 +199,7 @@ function IndividualVideo() {
     useEffect(() => {
         if (viewcomment) {
             fetchComments();
+
         }
     }, [page, viewcomment]);
 
@@ -248,7 +250,19 @@ function IndividualVideo() {
                                     )
                                 }
                                 <div className="hidden lg:block xl:absolute z-50 xl:w-80 lg:w-[25vw] w-80 m-4">
-                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => { setviewcomments(!viewcomment); handleFetchComments() }} >
+                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => {
+                                        if (status === true) {
+                                            setviewcomments(true)
+                                        } else {
+                                            toast({
+                                                title: "Pls Login/Signup To View Comments",
+                                                status: "info",
+                                                duration: "2s",
+                                                isClosable: true,
+
+                                            })
+                                        }
+                                    }} >
                                         <h2>Comments</h2>
                                         <div>
                                             <svg viewBox="0 0 360 360" className="mt-1 dark:fill-white" width={15} xml:space="preserve">
@@ -365,7 +379,19 @@ function IndividualVideo() {
                                     </div>
                                     <div className="lg:hidden mt-5 z-50 -ml-2 sm:w-80 w-[100vw]">
 
-                                        <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => setviewcomments(!viewcomment)} >
+                                        <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => {
+                                            if (status === true) {
+                                                setviewcomments(true)
+                                            } else {
+                                                toast({
+                                                    title: "Signup & Login To Enjoy Comments",
+                                                    status: "error",
+                                                    duration: 3000,
+                                                    position: "top",
+                                                    isClosable: true,
+                                                })
+                                            }
+                                        }} >
                                             <h2>Comments</h2>
                                             <div>
                                                 <svg viewBox="0 0 360 360" className="mt-1 dark:fill-white" width={15} xml:space="preserve">
