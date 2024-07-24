@@ -3,7 +3,16 @@ import VideoPlayer from "../Components/Videoplayer";
 import { useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import { useSelector } from 'react-redux'
-import { useToast } from "@chakra-ui/react";
+import {
+    useToast,
+    Accordion,
+    AccordionItem,
+    AccordionButton,
+    AccordionPanel,
+    AccordionIcon,
+    Box,
+    Spinner,
+} from "@chakra-ui/react";
 import CommentsLayout from "../Components/Comments.leylot";
 import LoadingComment from "../Components/Commentsloader";
 import Headertwo from "../Components/Header2";
@@ -31,13 +40,13 @@ function IndividualVideo() {
     const [likecount, setlikecount] = useState(0);
     const [likestate, setlikestate] = useState(false);
     const [video, setVideo] = useState({});
-
+    const [commentpostloading, setcommentpostloading] = useState(false);
     const fetchComments = async (page) => {
         try {
             setcommentsLoading(true);
             const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${videoid}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
-            console.log(commentsData)
+            //console.log(commentsData)
             setComments(prevComments => [...prevComments, ...commentsData]);
             setTotalPages(response.data.data.totalPages);
         } catch (error) {
@@ -78,23 +87,28 @@ function IndividualVideo() {
 
     const postcomments = async () => {
         setcommentsLoading(false);
+        setcommentpostloading(true)
         setcommentsError(false);
         try {
+
+
+            setcommenttext("");
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
+
+            //console.log(response.data.data);
             const comment = {
-                content: commenttext,
+                content: response.data.data.content,
+                _id: response.data.data._id,
                 user: {
                     ...userdata
                 }
             }
-            setComments([...comments, comment])
-            setcommenttext("");
-            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
-            console.log(comments);
-
+            setComments([...comments, comment])// console.log(comments);
         } catch (error) {
             console.log(error)
             setcommentsError(true);
         } finally {
+            setcommentpostloading(false)
             setcommentsLoading(false);
         }
     }
@@ -291,14 +305,20 @@ function IndividualVideo() {
                                                 aria-label="Submit"
                                                 class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
                                             >
-                                                <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
-                                                    <path
-                                                        fill="currentColor"
-                                                        fill-rule="evenodd"
-                                                        clip-rule="evenodd"
-                                                        d="M16 3 10 .5v2H0v1h10v2L16 3Z"
-                                                    ></path>
-                                                </svg>
+                                                {
+                                                    commentpostloading ? (
+                                                        <Spinner size={"sm"} />
+                                                    ) : (
+                                                        <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
+                                                            <path
+                                                                fill="currentColor"
+                                                                fill-rule="evenodd"
+                                                                clip-rule="evenodd"
+                                                                d="M16 3 10 .5v2H0v1h10v2L16 3Z"
+                                                            ></path>
+                                                        </svg>
+                                                    )
+                                                }
                                             </button>
                                         </div>
                                     </div>
@@ -320,12 +340,32 @@ function IndividualVideo() {
 
                         </div>
                         <div className=" w-[100vw] max-h-max bg-white dark:bg-black -ml-4 sm:w-[50vw] mt-1 ">
-                            <div className="p-2">
+                            <div className="px-2 py-0">
                                 <div>
-                                    <h2 className="text-xl w-[97vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
+                                    <Accordion className="border-transparent -pt-7 hover:bg-white dark:hover:bg-black -ml-3" allowToggle={true}>
+                                        <AccordionItem>
+                                            <h2>
+                                                <AccordionButton>
+                                                    <Box as='span' flex='1' textAlign='left'>
+                                                        <h2 className="text-xl w-[90vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
+                                                        <h2 className="text-sm text-gray-800 dark:text-gray-400">{video.video.views} Views</h2>
+
+                                                    </Box>
+                                                    <AccordionIcon />
+                                                </AccordionButton>
+                                            </h2>
+                                            <AccordionPanel>
+                                                <h2 className="text-sm -mt-2 w-[97vw] sm:w-96  overflow-hidden">Upload At {video.video.createdAt.slice(0, 10)}</h2>
+                                                <h2>Description : </h2>
+                                                <h2 className="text-sm text-gray-800 dark:text-white">{video.video.description}</h2>
+                                            </AccordionPanel>
+                                        </AccordionItem>
+                                    </Accordion>
+
+
                                 </div>
                                 <div>
-                                    <div className="flex mt-2 justify-left items-center py-2">
+                                    <div className="flex justify-left items-center pt-1 pb-2">
                                         <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
                                         <div className="px-2" >
                                             <h2 className="text-md " >{video.channel.username}</h2>
@@ -417,16 +457,22 @@ function IndividualVideo() {
                                                     type="submit"
                                                     onClick={postcomments}
                                                     aria-label="Submit"
-                                                    class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
+                                                    class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white "
                                                 >
-                                                    <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
-                                                        <path
-                                                            fill="currentColor"
-                                                            fill-rule="evenodd"
-                                                            clip-rule="evenodd"
-                                                            d="M16 3 10 .5v2H0v1h10v2L16 3Z"
-                                                        ></path>
-                                                    </svg>
+                                                    {
+                                                        commentpostloading ? (
+                                                            <Spinner size={"sm"} />
+                                                        ) : (
+                                                            <svg viewBox="0 0 16 6" aria-hidden="true" class="w-4">
+                                                                <path
+                                                                    fill="currentColor"
+                                                                    fill-rule="evenodd"
+                                                                    clip-rule="evenodd"
+                                                                    d="M16 3 10 .5v2H0v1h10v2L16 3Z"
+                                                                ></path>
+                                                            </svg>
+                                                        )
+                                                    }
                                                 </button>
                                             </div>
                                         </div>
@@ -434,7 +480,7 @@ function IndividualVideo() {
                                             {
                                                 viewcomment && (
                                                     <>
-                                                        <div className=" w-max dark:bg-black bg-white p-2 overflow-y-scroll">
+                                                        <div className=" flex flex-col justify-center items-left  dark:bg-black bg-white p-2 overflow-y-scroll">
                                                             <CommentsLayout commentData={comments} />
                                                             {commentsloading && <LoadingComment totalNo={9} />}
                                                             <div ref={lastCommentElementRef} />

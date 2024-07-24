@@ -23,8 +23,8 @@ function Comment({ comment, status, userdata, filterComment }) {
 
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [likebyuserstate, setlikeuserstate] = useState(comment.commentLikeState);
-    const [likecount, setlikecount] = useState(comment.likeCount)
+    const [likebyuserstate, setlikeuserstate] = useState(comment.commentLikeState || false);
+    const [likecount, setlikecount] = useState(comment.likeCount || 0)
     const [commenterror, setcommentsError] = useState({
         status: false,
         msg: ""
@@ -38,7 +38,7 @@ function Comment({ comment, status, userdata, filterComment }) {
             setlikecount(prevlikecount => likebyuserstate ? prevlikecount - 1 : prevlikecount + 1);
             setlikeuserstate(!likebyuserstate);
             const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/like/comment/${comment._id}`, { withCredentials: true });
-            
+
 
         } catch (error) {
             console.log(error)
@@ -72,7 +72,7 @@ function Comment({ comment, status, userdata, filterComment }) {
             setloadingeditcomment(false)
         }
     }
-
+    // it is for update post is a diff part
     const postComments = async () => {
         if (commentText.length === 0) {
             return setcommentsError({
@@ -102,12 +102,12 @@ function Comment({ comment, status, userdata, filterComment }) {
     };
 
     return (
-        <div key={comment._id} className="flex justify-center items-center mt-4 z-24 sm:w-72 w-[95vw] gap-2 p-4">
+        <div key={comment._id} className="flex justify-center items-center mt-4 z-24 sm:min-w-72  gap-2 p-4">
             <div className="h-10 w-10 rounded-full">
                 <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.fullname}'s avatar`} />
             </div>
             <div className=" h-14 flex-1">
-                <div className="mb-1 w-3/5 rounded-lg text-md">
+                <div className="mb-1 rounded-lg text-md">
                     <h4>{comment.user.fullname}</h4>
                 </div>
                 <div className="z-30 max-h-14 w-[140px] overflow-y-auto  text-sm">
@@ -248,14 +248,25 @@ function CommentsLayout({ commentData }) {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        setData(commentData);
-        console.log('Updated data:', commentData);
+        const seenIds = new Set();
+
+        // Filter out duplicate comments based on _id
+        const filteredData = commentData.filter(comment => {
+            if (seenIds.has(comment._id)) {
+                return false;
+            } else {
+                seenIds.add(comment._id);
+                return true;
+            }
+        });
+        setData(filteredData);
+        // console.log('Updated data:', commentData);
     }, [commentData]);
 
     const filterComment = (id) => {
         const filteredData = data.filter((comment) => comment._id !== id);
         setData(filteredData);
-        console.log('Filtered data:', filteredData);
+        // console.log('Filtered data:', filteredData);
     };
 
     return (
