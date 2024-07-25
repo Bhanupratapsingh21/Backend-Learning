@@ -13,7 +13,7 @@ import {
     useToast,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
-
+import Headertwo from '../Components/Header2';
 function Upload() {
     const [videoLoading, setVideoLoading] = useState(false);
     const [videoProgress, setVideoProgress] = useState(0);
@@ -46,7 +46,7 @@ function Upload() {
                 },
             });
             //console.log(response.data);
-            
+
             toast({
                 title: "Completed",
                 description: "Your Video Upload SuccessFull",
@@ -107,6 +107,7 @@ function Upload() {
 
     return (
         <>
+            <Headertwo />
             <Tabs isFitted variant='enclosed'>
                 <TabList mb='1em'>
                     <Tab>Video</Tab>

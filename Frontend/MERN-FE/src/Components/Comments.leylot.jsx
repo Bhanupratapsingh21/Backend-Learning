@@ -64,7 +64,7 @@ function Comment({ comment, filterondeletecomments, status, userdata }) {
             // console.log(response)
             filterondeletecomments(comment._id);
         } catch (error) {
-           // console.log(error)
+            // console.log(error)
             setcommentsError({
                 status: true,
                 msg: "Error : Error While deleteing Comment Pls Try Again"
@@ -109,7 +109,7 @@ function Comment({ comment, filterondeletecomments, status, userdata }) {
             </div>
             <div className=" h-14 flex-1">
                 <div className="mb-1 rounded-lg text-md">
-                    <h4>{comment.user.fullname}</h4>
+                    <h4>{comment.user.username}</h4>
                 </div>
                 <div className="z-30 max-h-14 w-[140px] overflow-y-auto  text-sm">
                     <p>{comment.content}</p>

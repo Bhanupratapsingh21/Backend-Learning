@@ -8,18 +8,20 @@ import Userwatchhistory from "../Screen's/Watch-History.jsx"
 import Profile from "../Screen's/Profile.jsx";
 import IndividualVideo from "../Screen's/Individual.Video.jsx";
 import Upload from "../Screen's/Uploadvideo.jsx";
+import Editvideo from "../Screen's/VideoEditScreen.jsx";
 function AllRoutes() {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/tweets" element={<Tweets/>} />
-            <Route path="/playlist" element={<Playlist/>} />
-            <Route path="/profile" element={<Profile/>} />
-            <Route path="/subscription" element={<Subscription/>} />
-            <Route path="/videos" element={<Videos/>} />
-            <Route  path="/upload" element={<Upload/>} />
-            <Route path="/video/:videoid" element={<IndividualVideo/>} />
-            <Route path="/watch-history" element={<Userwatchhistory/>} />
+            <Route path="/tweets" element={<Tweets />} />
+            <Route path="/playlist" element={<Playlist />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/videos" element={<Videos />} />
+            <Route path="/upload" element={<Upload />} />
+            <Route path="/editvideo/:videoid" element={<Editvideo />} />
+            <Route path="/video/:videoid" element={<IndividualVideo />} />
+            <Route path="/watch-history" element={<Userwatchhistory />} />
 
         </Routes>
     );
