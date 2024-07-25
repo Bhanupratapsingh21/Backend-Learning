@@ -47,7 +47,21 @@ function IndividualVideo() {
             const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${videoid}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
             //console.log(commentsData)
-            setComments(prevComments => [...prevComments, ...commentsData]);
+            //setComments(prevComments => [...prevComments, ...commentsData]);
+            setComments(prevComments => {
+                const posts = [...prevComments, ...commentsData];
+                const seenIds = new Set();
+                // Filter out duplicate posts based on _id
+                const filteredData = posts.filter(post => {
+                    if (seenIds.has(post._id)) {
+                        return false;
+                    } else {
+                        seenIds.add(post._id);
+                        return true;
+                    }
+                });
+                return filteredData;
+            });
             setTotalPages(response.data.data.totalPages);
         } catch (error) {
             console.error(error);
@@ -57,6 +71,10 @@ function IndividualVideo() {
         }
     };
 
+    const filterondeletecomments = (_id) => {
+        const newdata = comments.filter(post => post._id !== _id)
+        setComments(newdata);
+    }
 
 
     useEffect(() => {
@@ -326,7 +344,7 @@ function IndividualVideo() {
                                         viewcomment && (
                                             <>
                                                 <div className="h-[320px] absolute  overflow-y-scroll">
-                                                    <CommentsLayout commentData={comments} />
+                                                    <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                     {commentsloading && <LoadingComment totalNo={9} />}
                                                     <div ref={lastCommentElementRef} />
                                                     {commentserror && <div className="flex justify-center w-72 text-center items-center">This Video Don't Have Any Comments</div>}
@@ -481,7 +499,7 @@ function IndividualVideo() {
                                                 viewcomment && (
                                                     <>
                                                         <div className=" flex flex-col justify-center items-left  dark:bg-black bg-white p-2 overflow-y-scroll">
-                                                            <CommentsLayout commentData={comments} />
+                                                            <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                             {commentsloading && <LoadingComment totalNo={9} />}
                                                             <div ref={lastCommentElementRef} />
                                                             {commentserror && <div className="flex text-center w-[90vw] sm:w-max justify-center items-center">This Video Don't Have Any Comments</div>}

@@ -10,7 +10,9 @@ import {
     Alert,
     AlertIcon,
     Progress,
+    useToast,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router';
 
 function Upload() {
     const [videoLoading, setVideoLoading] = useState(false);
@@ -18,7 +20,8 @@ function Upload() {
     const [tweetLoading, setTweetLoading] = useState(false);
     const [tweetProgress, setTweetProgress] = useState(0);
     const [error, setError] = useState(null);
-
+    const navigate = useNavigate();
+    const toast = useToast();
     const handleVideoUpload = async (e) => {
         e.preventDefault();
         setVideoLoading(true);
@@ -42,8 +45,17 @@ function Upload() {
                     }
                 },
             });
-            console.log(response.data);
-            alert("Video uploaded successfully");
+            //console.log(response.data);
+            
+            toast({
+                title: "Completed",
+                description: "Your Video Upload SuccessFull",
+                status: "success",
+                duration: 2000,
+                position: "top",
+                isClosable: true,
+            });
+            navigate("/videos")
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.errors || 'An error occurred while uploading the video');
@@ -65,7 +77,7 @@ function Upload() {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
-                withCredentials : true,
+                withCredentials: true,
                 onUploadProgress: (progressEvent) => {
                     const totalLength = progressEvent.lengthComputable
                         ? progressEvent.total
@@ -75,8 +87,16 @@ function Upload() {
                     }
                 },
             });
-            console.log(response.data);
-            alert("Tweet uploaded successfully");
+            //console.log(response.data);
+            toast({
+                title: "Completed",
+                description: "Your Tweet Upload SuccessFull",
+                status: "success",
+                duration: 2000,
+                position: "top",
+                isClosable: true,
+            });
+            navigate("/tweets")
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.errors || 'An error occurred while uploading the tweet');
@@ -203,7 +223,7 @@ function Upload() {
 
                                                 </div>
                                                 <div className='mt-2'>
-                                                 
+
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center justify-between mt-3">

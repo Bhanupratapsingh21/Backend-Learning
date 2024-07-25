@@ -20,16 +20,17 @@ import {
     Modal,
     ModalOverlay,
     ModalContent,
-    useBreakpointValue ,
+    useBreakpointValue,
     ModalHeader,
     ModalFooter,
     ModalBody,
     ModalCloseButton,
+    position,
 } from "@chakra-ui/react";
 import CommentsLayout from "./Comments.leylot";
 import LoadingComment from "./Commentsloader";
 
-function Tweet({ tweet, userdata, status, toast }) {
+function Tweet({ tweet, filterondelete, userdata, status, toast }) {
     const date = tweet.createdAt.slice(0, 10);
     //
 
@@ -51,7 +52,21 @@ function Tweet({ tweet, userdata, status, toast }) {
             const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${tweet._id}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
             //console.log(commentsData)
-            setComments(prevComments => [...prevComments, ...commentsData]);
+            //setComments(prevComments => [...prevComments, ...commentsData]);
+            setComments(prevComments => {
+                const posts = [...prevComments, ...commentsData];
+                const seenIds = new Set();
+                // Filter out duplicate posts based on _id
+                const filteredData = posts.filter(post => {
+                    if (seenIds.has(post._id)) {
+                        return false;
+                    } else {
+                        seenIds.add(post._id);
+                        return true;
+                    }
+                });
+                return filteredData;
+            });
             setTotalPages(response.data.data.totalPages);
         } catch (error) {
             console.error(error);
@@ -60,6 +75,12 @@ function Tweet({ tweet, userdata, status, toast }) {
             setcommentsLoading(false);
         }
     };
+
+
+    const filterondeletecomments = (_id) => {
+        const newdata = comments.filter(post => post._id !== _id)
+        setComments(newdata);
+    }
 
     const postcomments = async () => {
         setcommentsLoading(false);
@@ -124,9 +145,79 @@ function Tweet({ tweet, userdata, status, toast }) {
     const placement = useBreakpointValue({ base: 'bottom', md: 'right' });
     const { isOpen: ChangesModelIsOpen, onOpen: ChangesModelonOpen, onClose: ChangesModelonClose } = useDisclosure()
 
+    //edit post tweet 
+    const [editposttext, seteditposttext] = useState(tweet.content)
+    const [editpostloading, seteditpostloading] = useState(false)
+    const [editposterror, seteditpostserror] = useState({
+        status: false,
+        msg: ""
+    });
+
+    const deletepost = async () => {
+        seteditpostserror({
+            status: false,
+            msg: ""
+        });
+        seteditpostloading(true);
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/tweets/deleteblog/${tweet._id}`, {}, { withCredentials: true });
+            // console.log(response)
+            filterondelete(tweet._id);
+            ChangesModelonClose();
+        } catch (error) {
+            console.log(error)
+            seteditpostserror({
+                status: true,
+                msg: "Error : Error While deleteing Comment Pls Try Again"
+            });
+        } finally {
+            seteditpostloading(false)
+        }
+    }
+    // it is for update post is a diff part
+    const posteditpost = async () => {
+        if (editposttext.length === 0) {
+            return seteditpostserror({
+                status: true,
+                msg: "Bhai Kuch Toh Likhe Yr"
+            })
+        }
+        seteditpostloading(true);
+        seteditpostserror({
+            status: false,
+            msg: ""
+        })
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/tweets/editblogs/${tweet._id}`, { content: editposttext }, { withCredentials: true })
+            console.log(response.data.data)
+            tweet.content = response.data.data.content
+            ChangesModelonClose();
+        } catch (error) {
+            console.log(error)
+            seteditpostserror({
+                status: true,
+                msg: "Error : Error While Updateing Comment Pls Try Again"
+            });
+        } finally {
+            seteditpostloading(false)
+        }
+    };
+
     const opencommentsections = () => {
-        onOpen();
-        setviewcomments(true);
+        if (status) {
+
+            onOpen();
+            setviewcomments(true);
+        } else {
+            toast({
+                title: "Error",
+                description: "Please login Or Signup To Enjoy Comments",
+                status: "error",
+                duration: 3000,
+                position: "top",
+                isClosable: true,
+            });
+        }
     }
 
     const toggleSubscribe = async () => {
@@ -153,6 +244,7 @@ function Tweet({ tweet, userdata, status, toast }) {
                 description: "Please log in before subscribing.",
                 status: "error",
                 duration: 3000,
+                position: "top",
                 isClosable: true,
             });
         }
@@ -208,7 +300,7 @@ function Tweet({ tweet, userdata, status, toast }) {
                                 {subscribe ? 'Subscribed' : 'Subscribe'}
                             </button>
                             {
-                                tweet.createdBy._id === userdata._id && (
+                                tweet.createdBy._id === userdata?._id && (
                                     <svg onClick={ChangesModelonOpen} className="fill-current stroke-current w-5 h-5 ml-3 rounded-full" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100" width="100" x="0" xmlns="http://www.w3.org/2000/svg" y="0">
                                         <path className="svg-stroke-primary" d="M50,17.4h0M50,50h0m0,32.6h0M50,22a4.7,4.7,0,1,1,4.7-4.6A4.7,4.7,0,0,1,50,22Zm0,32.7A4.7,4.7,0,1,1,54.7,50,4.7,4.7,0,0,1,50,54.7Zm0,32.6a4.7,4.7,0,1,1,4.7-4.7A4.7,4.7,0,0,1,50,87.3Z" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
                                         </path>
@@ -264,7 +356,7 @@ function Tweet({ tweet, userdata, status, toast }) {
 
                     <DrawerBody >
                         <div className="sm:h-max max-h-[360px] flex flex-col items-left justify-center overflow-y-scroll">
-                            <CommentsLayout commentData={comments} />
+                            <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                             {commentsloading && <LoadingComment totalNo={9} />}
                             <div ref={lastCommentElementRef} />
                             {commentserror && <div className="flex justify-center text-center items-center">This Video Don't Have Any Comments</div>}
@@ -310,12 +402,96 @@ function Tweet({ tweet, userdata, status, toast }) {
             <Modal isOpen={ChangesModelIsOpen} onClose={ChangesModelonClose}>
                 <ModalOverlay />
                 <ModalContent className="dark:bg-black bg-white dark:text-white text-black">
-                    <ModalHeader>Modal Title</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
+                        <Tabs isFitted variant='enclosed'>
+                            <TabList mb='1em'>
+                                <Tab>Edit Post</Tab>
+                                <Tab>Delete Post</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel>
+                                    <div className='flex flex-col justify-center items-center'>
+                                        <div className="relative bottom-1 mb-2 mt-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Add Comment"
+                                                className="block w-96 rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                onChange={(e) => seteditposttext(e.target.value)}
+                                                value={editposttext}
+                                            />
+                                            <div className="absolute inset-y-1 right-6 flex justify-end">
+                                                {
+                                                    editpostloading ? (
+                                                        <div className='flex justify-center items-center'>
+                                                            <Spinner size="sm" />
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <button
+                                                                type="submit"
+                                                                onClick={posteditpost}
+                                                                aria-label="Submit"
+                                                                className="flex aspect-square h-full items-center justify-center rounded-xl  dark:text-white transition "
+                                                            >
+                                                                <svg viewBox="0 0 16 6" aria-hidden="true" className="w-4">
+                                                                    <path
+                                                                        fill="currentcolor"
+                                                                        fill-rule="evenodd"
+                                                                        clip-rule="evenodd"
+                                                                        d="M16 3 10 .5v2H0v1h10v2L16 3Z"
+                                                                    ></path>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                        {
+                                            editposterror.status && <h3>{editposterror?.msg || "Error pls try again leter"}</h3>
+                                        }
+                                    </div>
+                                </TabPanel>
+                                <TabPanel>
+                                    <div className='flex justify-center flex-col gap-4 items-center'>
+                                        <h3>Delete Comment</h3>
+                                        <button
+                                            class="inline-flex w-82 items-center px-4 py-2 bg-red-600 transition ease-in-out delay-75 hover:bg-red-700 text-white text-sm font-medium rounded-md hover:-translate-y-1 hover:scale-110"
+                                            onClick={deletepost}
+                                        >
+                                            <svg
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                class="h-5 w-5 mr-2"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    stroke-width="2"
+                                                    stroke-linejoin="round"
+                                                    stroke-linecap="round"
+                                                ></path>
+                                            </svg>
+                                            {
+                                                editpostloading ? (
+                                                    <Spinner size="sm" />
+                                                ) : (
+                                                    <h2>Delete</h2>
+                                                )
+                                            }
 
+                                        </button>
+                                        {
+                                            editposterror.status && <h3>{editposterror.msg || "Error : Pls try again"}</h3>
+                                        }
+                                    </div>
+
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     </ModalBody>
-
                     <ModalFooter>
 
                     </ModalFooter>
@@ -325,7 +501,7 @@ function Tweet({ tweet, userdata, status, toast }) {
     );
 }
 
-function TweetsLayout({ tweetsdata }) {
+function TweetsLayout({ filterondelete, tweetsdata }) {
     const { status, userdata } = useSelector((state) => state.auth);
     const toast = useToast();
 
@@ -334,7 +510,7 @@ function TweetsLayout({ tweetsdata }) {
             {tweetsdata?.map((tweet) => {
                 //console.log(tweet);
                 return (
-                    <Tweet key={tweet._id} tweet={tweet} userdata={userdata} status={status} toast={toast} />
+                    <Tweet key={tweet._id} filterondelete={filterondelete} tweet={tweet} userdata={userdata} status={status} toast={toast} />
                 )
             }
             )}

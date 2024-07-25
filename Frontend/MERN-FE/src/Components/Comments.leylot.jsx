@@ -19,8 +19,8 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 
-function Comment({ comment, status, userdata, filterComment }) {
-
+function Comment({ comment, filterondeletecomments, status, userdata }) {
+    //console.log(comment)
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [likebyuserstate, setlikeuserstate] = useState(comment.commentLikeState || false);
@@ -41,7 +41,7 @@ function Comment({ comment, status, userdata, filterComment }) {
 
 
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             toast({
                 title: error.response?.data?.errors || "Error While Like Comment Pls & Login Again",
                 description: "pls Try Again.",
@@ -62,8 +62,9 @@ function Comment({ comment, status, userdata, filterComment }) {
         try {
             const response = await axios.delete(`${import.meta.env.VITE_URL}/api/v1/comment/deletecomment/${comment._id}`, { withCredentials: true });
             // console.log(response)
-            filterComment(comment._id)
+            filterondeletecomments(comment._id);
         } catch (error) {
+           // console.log(error)
             setcommentsError({
                 status: true,
                 msg: "Error : Error While deleteing Comment Pls Try Again"
@@ -87,7 +88,7 @@ function Comment({ comment, status, userdata, filterComment }) {
         })
         try {
             const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/comment/updatecomment/${comment._id}`, { content: commentText }, { withCredentials: true })
-            console.log(response.data.data)
+            //console.log(response.data.data)
             comment.content = response.data.data.content
             onClose();
         } catch (error) {
@@ -104,7 +105,7 @@ function Comment({ comment, status, userdata, filterComment }) {
     return (
         <div key={comment._id} className="flex justify-center items-center mt-4 z-24 sm:min-w-72  gap-2 p-4">
             <div className="h-10 w-10 rounded-full">
-                <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.fullname}'s avatar`} />
+                <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.username}'s avatar`} />
             </div>
             <div className=" h-14 flex-1">
                 <div className="mb-1 rounded-lg text-md">
@@ -243,7 +244,7 @@ function Comment({ comment, status, userdata, filterComment }) {
     );
 }
 
-function CommentsLayout({ commentData }) {
+function CommentsLayout({ filterondeletecomments, commentData }) {
     const { status, userdata } = useSelector((state) => state.auth);
     const [data, setData] = useState([]);
 
@@ -263,20 +264,15 @@ function CommentsLayout({ commentData }) {
         // console.log('Updated data:', commentData);
     }, [commentData]);
 
-    const filterComment = (id) => {
-        const filteredData = data.filter((comment) => comment._id !== id);
-        setData(filteredData);
-        // console.log('Filtered data:', filteredData);
-    };
 
     return (
         <div>
             {data.map((comment) => (
                 <Comment
                     key={comment._id}
-                    filterComment={filterComment}
                     comment={comment}
                     status={status}
+                    filterondeletecomments={filterondeletecomments}
                     userdata={userdata}
                 />
             ))}

@@ -19,7 +19,20 @@ function Tweets() {
             const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/tweets/getblogsadv?q=newestfirst&limit=10&page=${page}`, { withCredentials: true });
             console.log(response.data.data.blogs)
             const tweets = response.data.data.blogs;
-            setData(prevData => [...prevData, ...tweets]);
+            setData(prevData => {
+                const posts = [...prevData, ...tweets];
+                const seenIds = new Set();
+                // Filter out duplicate posts based on _id
+                const filteredData = posts.filter(post => {
+                    if (seenIds.has(post._id)) {
+                        return false;
+                    } else {
+                        seenIds.add(post._id);
+                        return true;
+                    }
+                });
+                return filteredData;
+            });
             setTotalPages(response.data.data.totalPages);
         } catch (error) {
             console.log(error);
@@ -29,9 +42,14 @@ function Tweets() {
         }
     };
 
+    const filterondelete = (_id) => {
+        const newdata = data.filter(post => post._id !== _id)
+        setData(newdata);
+    }
+
     useEffect(() => {
         getData(page);
-    }, [page,status]);
+    }, [page, status]);
 
     const lastTweetElementRef = useRef();
 
@@ -49,9 +67,9 @@ function Tweets() {
     }, [loading, page, totalPages]);
 
     return (
-        <>  
-            <Headertwo/>
-            <TweetsLeyout tweetsdata={data} />
+        <>
+            <Headertwo />
+            <TweetsLeyout filterondelete={filterondelete} tweetsdata={data} />
             {loading && <LoadingTweets totalno={9} />}
             <div ref={lastTweetElementRef} />
             {error && <div className="flex justify-center">Error loading tweets. Please try again later.</div>}
