@@ -14,7 +14,8 @@ import {
 } from "../controllers/user.controller.js";
 import { upload } from '../middlewares/multer.middleware.js'
 import { verifyjwt } from "../middlewares/auth.middleware.js";
-import { getChannelStats, getChannelVideos } from "../controllers/dashboard.controller.js";
+import { getChannelStats, getChannelVideos, getChannelVideospublic, getChannelBlogsPublic } from "../controllers/dashboard.controller.js";
+import { addedusertoreqdontstopresponse } from "../middlewares/authnotstopreq.middleware..js";
 
 const router = Router();
 router.route('/register').post(
@@ -46,11 +47,11 @@ router.route("/current-user").post(verifyjwt, getCurrentUser)
 router.route("/update-account").patch(verifyjwt, updateAccountDetails)
 router.route("/avatar").patch(verifyjwt, upload.single("avatar"), updateUserAvatar)
 router.route("/coverImage").patch(verifyjwt, upload.single("coverImage"), updateUserCoverImage)
-router.route("/c/:username").get(verifyjwt, GetUserChannalProfile)
+router.route("/getuser/:username").get(addedusertoreqdontstopresponse, GetUserChannalProfile)
 router.route("/history").get(verifyjwt, getWatchHistory)
-router.route("/dashboard/:channelId").get(verifyjwt,getChannelStats)
-router.route("/getvideos/:channelId").get(getChannelVideos)
-
-
+router.route("/dashboard/:channelId").get(verifyjwt, getChannelStats)
+router.route("/getvideos/:channelId").get(verifyjwt, getChannelVideos)
+router.route("/getvideospublic/:channelId").get(getChannelVideospublic)
+router.route("/gettweetspublic/:channelId").get(addedusertoreqdontstopresponse, getChannelBlogsPublic)
 
 export default router

@@ -267,7 +267,7 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
                 new ApiResponse(
                     200,
 
-                    { data : user, refreshToken }
+                    { data: user, refreshToken }
                     ,
                     "Token Refreshed Successfully"
                 )
@@ -419,18 +419,18 @@ const updateUserCoverImage = asyncHandeler(async (req, res) => {
 })
 
 const GetUserChannalProfile = asyncHandeler(async (req, res) => {
-    const { username } = req.username
-    if (!username?.trim) {
+    const username = req.params.username;
 
+    if (!username?.trim()) {
         return res
             .status(400)
-            .json(new ApiError(400, {}, "username Is Missing"))
+            .json(new ApiError(400, {}, "Username is missing"));
     }
 
     const channal = await User.aggregate([
         {
             $match: {
-                username: username?.toLowerCase()
+                username: username.toLowerCase()
             }
         },
         {
@@ -451,15 +451,11 @@ const GetUserChannalProfile = asyncHandeler(async (req, res) => {
         },
         {
             $addFields: {
-                subscriberCount: {
-                    $size: "$subscribers"
-                },
-                channalsSubscribedToCount: {
-                    $size: "$subscribedTo"
-                },
+                subscriberCount: { $size: "$subscribers" },
+                channalsSubscribedToCount: { $size: "$subscribedTo" },
                 isSubscribed: {
                     $cond: {
-                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                        if: { $in: [req?.user?._id, "$subscribers.subscriber"] },
                         then: true,
                         else: false
                     }
@@ -468,31 +464,29 @@ const GetUserChannalProfile = asyncHandeler(async (req, res) => {
         },
         {
             $project: {
-                fullName: 1,
+                fullname: 1,
                 username: 1,
                 subscriberCount: 1,
                 channalsSubscribedToCount: 1,
                 avatar: 1,
                 coverImage: 1,
                 email: 1,
+                isSubscribed: 1 // Ensure this is included in the projection
             }
         }
-    ])
+    ]);
 
-    if (!channal?.length) {
+    if (!channal.length) {
         return res
             .status(400)
-            .json(new ApiError(400, {}, "Channal Does Not Exists"))
+            .json(new ApiError(400, {}, "Channel does not exist"));
     }
 
     return res
         .status(200)
-        .json(
-            new ApiResponse(200, channal[0], "User Channal Fetched Successfully")
-        )
+        .json(new ApiResponse(200, channal[0], "User channel fetched successfully"));
+});
 
-
-})
 
 const getWatchHistory = asyncHandeler(async (req, res) => {
     const user = await User.aggregate([
