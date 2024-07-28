@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router';
 import Headertwo from '../Components/Header2';
+import { useSelector } from 'react-redux';
 function Upload() {
     const [videoLoading, setVideoLoading] = useState(false);
     const [videoProgress, setVideoProgress] = useState(0);
@@ -22,86 +23,109 @@ function Upload() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const toast = useToast();
+    const { status, userdata } = useSelector((state) => state.auth);
     const handleVideoUpload = async (e) => {
         e.preventDefault();
-        setVideoLoading(true);
-        setVideoProgress(0);
-        setError(null);
+        if (status) {
+            setVideoLoading(true);
+            setVideoProgress(0);
+            setError(null);
 
-        const formData = new FormData(e.target);
+            const formData = new FormData(e.target);
 
-        try {
-            const response = await axios.post('http://localhost:4000/api/v1/videos/addvideo', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                withCredentials: true,
-                onUploadProgress: (progressEvent) => {
-                    const totalLength = progressEvent.lengthComputable
-                        ? progressEvent.total
-                        : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
-                    if (totalLength) {
-                        setVideoProgress(Math.round((progressEvent.loaded * 100) / totalLength));
-                    }
-                },
-            });
-            //console.log(response.data);
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/videos/addvideo`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent) => {
+                        const totalLength = progressEvent.lengthComputable
+                            ? progressEvent.total
+                            : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+                        if (totalLength) {
+                            setVideoProgress(Math.round((progressEvent.loaded * 100) / totalLength));
+                        }
+                    },
+                });
+                //console.log(response.data);
 
+                toast({
+                    title: "Completed",
+                    description: "Your Video Upload SuccessFull",
+                    status: "success",
+                    duration: 2000,
+                    position: "top",
+                    isClosable: true,
+                });
+                navigate("/videos")
+            } catch (err) {
+                console.error(err);
+                setError(err.response?.data?.errors || 'An error occurred while uploading the video');
+            } finally {
+                setVideoLoading(false);
+            }
+        } else {
             toast({
-                title: "Completed",
-                description: "Your Video Upload SuccessFull",
-                status: "success",
+                title: "Pls login Or Signup",
+                description: "Pls Login and Signup",
+                status: "error",
                 duration: 2000,
                 position: "top",
                 isClosable: true,
             });
-            navigate("/videos")
-        } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.errors || 'An error occurred while uploading the video');
-        } finally {
-            setVideoLoading(false);
         }
     };
 
     const handleTweetUpload = async (e) => {
         e.preventDefault();
-        setTweetLoading(true);
-        setTweetProgress(0);
-        setError(null);
+        if (status) {
+            setTweetLoading(true);
+            setTweetProgress(0);
+            setError(null);
 
-        const formData = new FormData(e.target);
+            const formData = new FormData(e.target);
 
-        try {
-            const response = await axios.post('http://localhost:4000/api/v1/tweets/uploadblog', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                withCredentials: true,
-                onUploadProgress: (progressEvent) => {
-                    const totalLength = progressEvent.lengthComputable
-                        ? progressEvent.total
-                        : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
-                    if (totalLength) {
-                        setTweetProgress(Math.round((progressEvent.loaded * 100) / totalLength));
-                    }
-                },
-            });
-            //console.log(response.data);
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/tweets/uploadblog`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent) => {
+                        const totalLength = progressEvent.lengthComputable
+                            ? progressEvent.total
+                            : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+                        if (totalLength) {
+                            setTweetProgress(Math.round((progressEvent.loaded * 100) / totalLength));
+                        }
+                    },
+                });
+                //console.log(response.data);
+                toast({
+                    title: "Completed",
+                    description: "Your Tweet Upload SuccessFull",
+                    status: "success",
+                    duration: 2000,
+                    position: "top",
+                    isClosable: true,
+                });
+                navigate("/tweets")
+            } catch (err) {
+                console.error(err);
+                setError(err.response?.data?.errors || 'An error occurred while uploading the tweet');
+            } finally {
+                setTweetLoading(false);
+            }
+        } else {
             toast({
-                title: "Completed",
-                description: "Your Tweet Upload SuccessFull",
-                status: "success",
+                title: "Pls login Or Signup",
+                description: "Pls Login and Signup",
+                status: "error",
                 duration: 2000,
                 position: "top",
                 isClosable: true,
             });
-            navigate("/tweets")
-        } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.errors || 'An error occurred while uploading the tweet');
-        } finally {
-            setTweetLoading(false);
         }
     };
 
@@ -119,12 +143,15 @@ function Upload() {
                             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                                 <div className="bg-white dark:bg-black dark:text-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                                     <form method="POST" action="#" onSubmit={handleVideoUpload}>
+                                        <h2 className="text-2xl mb-3 font-bold leading-tight">
+                                            Upload Video
+                                        </h2>
                                         <div>
                                             <label className="block text-sm font-medium" htmlFor="title">
                                                 Title
                                             </label>
                                             <div className="mt-1">
-                                                <input className="appearance-none block dark:text-black text-white w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tittle" id="tittle" />
+                                                <input className="appearance-none block dark:bg-black dark:text-black text-white w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tittle" id="tittle" />
                                             </div>
                                         </div>
 
@@ -133,7 +160,7 @@ function Upload() {
                                                 Description
                                             </label>
                                             <div className="mt-1">
-                                                <textarea className="bg-gray-100 w-full dark:text-black text-white  border-0 rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" name="description" required></textarea>
+                                                <textarea className="bg-gray-100 w-full border dark:bg-black dark:text-black text-white  rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" name="description" required></textarea>
                                             </div>
                                         </div>
 
@@ -142,18 +169,18 @@ function Upload() {
                                                 Tags
                                             </label>
                                             <div className="mt-1">
-                                                <input className="appearance-none dark:text-black text-white block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tegs" id="tegs" />
+                                                <input className="appearance-none dark:bg-black dark:text-black text-white block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tegs" id="tegs" />
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-left mt-6">
                                             <span className="mr-3 font-medium">isPublished:</span>
                                             <label className="inline-flex items-center">
-                                                <input type="radio" className="form-radio h-5 w-5 text-pink-600" name="isPublished" value="true" required />
+                                                <input type="radio" className="form-radio dark:bg-black h-5 w-5 text-pink-600" name="isPublished" value="true" required />
                                                 <span className="ml-2">True</span>
                                             </label>
                                             <label className="inline-flex items-center ml-6">
-                                                <input type="radio" className="form-radio h-5 w-5 text-purple-600" name="isPublished" value="false" required />
+                                                <input type="radio" className="form-radio dark:bg-black h-5 w-5 text-purple-600" name="isPublished" value="false" required />
                                                 <span className="ml-2">False</span>
                                             </label>
                                         </div>
@@ -165,7 +192,7 @@ function Upload() {
                                                 </label>
                                             </div>
                                             <div className="mt-2">
-                                                <input className="file-input w-full max-w-xs" type="file" id="thumbnail" name="thumbnail" required />
+                                                <input className="file-input dark:bg-black w-full max-w-xs" type="file" id="thumbnail" name="thumbnail" required />
                                             </div>
                                         </div>
 
@@ -176,7 +203,7 @@ function Upload() {
                                                 </label>
                                             </div>
                                             <div className="mt-2">
-                                                <input className="file-input w-full max-w-xs" type="file" id="videofile" name="videofile" required />
+                                                <input className="file-input dark:bg-black  w-full max-w-xs" type="file" accept="video/*" id="videofile" name="videofile" required />
                                             </div>
                                         </div>
 
@@ -217,7 +244,7 @@ function Upload() {
                                         <form className="mt-5" onSubmit={handleTweetUpload}>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <label className="text-base font-medium text-gray-900">
+                                                    <label className="text-base font-medium dark:text-white text-gray-900">
                                                         Your Text
                                                     </label>
                                                     <textarea placeholder="Pata Hai Ajj kya Huva ?" className="dark:bg-black bg-gray-100 w-full dark:text-white text-gray-800 border-0 rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" name="content" required></textarea>
@@ -228,7 +255,7 @@ function Upload() {
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center justify-between mt-3">
-                                                        <label className="text-base font-medium text-gray-900">
+                                                        <label className="text-base dark:text-white font-medium text-gray-900">
                                                             Tweet Picture
                                                         </label>
                                                     </div>
@@ -258,7 +285,7 @@ function Upload() {
             </Tabs>
 
             {error && (
-                <Alert className='bg-red-600 text-black' status="error" mt={4}>
+                <Alert className='bg-red-600 text-black' position={"top"} status="error" mt={4}>
                     <AlertIcon />
                     {error}
                 </Alert>

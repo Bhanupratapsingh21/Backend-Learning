@@ -29,7 +29,7 @@ import {
 } from "@chakra-ui/react";
 import CommentsLayout from "./Comments.leylot";
 import LoadingComment from "./Commentsloader";
-
+import { Link } from "react-router-dom";
 function Tweet({ tweet, filterondelete, userdata, status, toast }) {
     const date = tweet.createdAt.slice(0, 10);
     //
@@ -286,19 +286,26 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
             <div key={tweet._id} className="dark:bg-black sm:rounded-md bg-white">
                 <div className="bg-white dark:bg-black w-[100vw] sm:w-96 -mt-0 border-y-gray-600">
                     <div className="flex items-center px-4 py-3">
-                        <img className="h-8 w-8 rounded-full" src={tweet.createdBy.profileimg} alt="Profile" />
-                        <div className="ml-3">
-                            <span className="text-sm font-semibold antialiased block leading-tight">{tweet.createdBy.username}</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-xs block">On {date}</span>
-                        </div>
+                        <Link to={`/user/userprofile/${tweet.createdBy.username}`} className='flex justify-center items-center'>
+                            <img className="h-8 w-8 rounded-full" src={tweet.createdBy.profileimg} alt="Profile" />
+                            <div className="ml-3">
+                                <span className="text-sm font-semibold antialiased block leading-tight">{tweet.createdBy.username}</span>
+                                <span className="text-gray-600 dark:text-gray-400 text-xs block">On {date}</span>
+                            </div>
+                        </Link>
                         <div className="flex justify-end items-center w-[70vw]">
-                            <button
-                                onClick={toggleSubscribe}
-                                className={`${subscribe ? 'bg-[#292929]' : 'bg-red-600'
-                                    } border-2 dark:border-[#3e3e3e] rounded-lg text-white px-2 py-1 text-sm hover:border-[#fff] cursor-pointer transition`}
-                            >
-                                {subscribe ? 'Subscribed' : 'Subscribe'}
-                            </button>
+
+                            {
+                                tweet.createdBy._id !== userdata?._id ? (
+                                    <button
+                                        onClick={toggleSubscribe}
+                                        className={`${subscribe ? 'bg-[#292929]' : 'bg-red-600'
+                                            } border-2 dark:border-[#3e3e3e] rounded-lg text-white px-2 py-1 text-sm hover:border-[#fff] cursor-pointer transition`}
+                                    >
+                                        {subscribe ? 'Subscribed' : 'Subscribe'}
+                                    </button>
+                                ) : null
+                            }
                             {
                                 tweet.createdBy._id === userdata?._id && (
                                     <svg onClick={ChangesModelonOpen} className="fill-current stroke-current w-5 h-5 ml-3 rounded-full" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100" width="100" x="0" xmlns="http://www.w3.org/2000/svg" y="0">

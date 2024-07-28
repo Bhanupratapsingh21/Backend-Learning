@@ -1,4 +1,4 @@
-import { useNavigate, useParams,Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import VideoPlayer from "../Components/Videoplayer";
 import { useEffect, useState, useRef } from "react";
 import axios from 'axios';
@@ -114,30 +114,41 @@ function IndividualVideo() {
     };
 
     const postcomments = async () => {
-        setcommentsLoading(false);
-        setcommentpostloading(true)
-        setcommentsError(false);
-        try {
-
-
-            setcommenttext("");
-            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
-
-            //console.log(response.data.data);
-            const comment = {
-                content: response.data.data.content,
-                _id: response.data.data._id,
-                user: {
-                    ...userdata
-                }
-            }
-            setComments([...comments, comment])// console.log(comments);
-        } catch (error) {
-            console.log(error)
-            setcommentsError(true);
-        } finally {
-            setcommentpostloading(false)
+        if (status) {
             setcommentsLoading(false);
+            setcommentpostloading(true)
+            setcommentsError(false);
+            try {
+
+
+
+                const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/comment/postcomment/Video/${videoid}`, { content: commenttext }, { withCredentials: true });
+                setcommenttext("");
+                //console.log(response.data.data);
+                const comment = {
+                    content: response.data.data.content,
+                    _id: response.data.data._id,
+                    user: {
+                        ...userdata
+                    }
+                }
+                setComments([...comments, comment])// console.log(comments);
+            } catch (error) {
+                console.log(error)
+                setcommentsError(true);
+            } finally {
+                setcommentpostloading(false)
+                setcommentsLoading(false);
+            }
+        } else {
+            toast({
+                title: "Pls Login Before Commenting",
+                description: "Login || Register Pls",
+                status: "error",
+                duration: 3000,
+                position: "top",
+                isClosable: true,
+            });
         }
     }
 
@@ -251,6 +262,20 @@ function IndividualVideo() {
             });
         }
     }
+    const toggaleviewcomments = () => {
+        if (status) {
+            setviewcomments(!viewcomment)
+        } else {
+            toast({
+                title: "Signup & Login To Enjoy Comments",
+                status: "error",
+                duration: 3000,
+                position: "top",
+                isClosable: true,
+            })
+            console.log("pls login")
+        }
+    }
     const togglelikevideo = async () => {
         if (status) {
             try {
@@ -272,7 +297,7 @@ function IndividualVideo() {
             }
         } else {
             toast({
-                title: "Pls Login Before Subscribeing",
+                title: "Pls Login Before Like a Video",
                 description: "Login || Register Pls",
                 status: "error",
                 duration: 3000,
@@ -338,19 +363,7 @@ function IndividualVideo() {
                                     )
                                 }
                                 <div className="hidden lg:block xl:absolute z-50 xl:w-80 lg:w-[25vw] w-80 m-4">
-                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => {
-                                        if (status === true) {
-                                            setviewcomments(true)
-                                        } else {
-                                            toast({
-                                                title: "Pls Login/Signup To View Comments",
-                                                status: "info",
-                                                duration: "2s",
-                                                isClosable: true,
-
-                                            })
-                                        }
-                                    }} >
+                                    <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={toggaleviewcomments} >
                                         <h2>Comments</h2>
                                         <div>
                                             <svg viewBox="0 0 360 360" className="mt-1 dark:fill-white" width={15} xml:space="preserve">
@@ -440,20 +453,24 @@ function IndividualVideo() {
                                 </div>
                                 <div>
                                     <div className="flex justify-left items-center pt-1 pb-2">
-                                        <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
-                                        <div className="px-2" >
-                                            <h2 className="text-md " >{video.channel.username}</h2>
-                                            <h2 className="text-sm text-gray-800 dark:text-gray-400">{subscount} Subscriber</h2>
-                                        </div>
+                                        <Link className="flex justify-left items-center" to={`/user/userprofile/${video.channel.username}`}>
+                                            <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
+                                            <div className="px-2" >
+                                                <h2 className="text-md " >{video.channel.username}</h2>
+                                                <h2 className="text-sm text-gray-800 dark:text-gray-400">{subscount} Subscriber</h2>
+                                            </div>
+                                        </Link>
                                         <div className="ml-3 sm:ml-0">
                                             {
-                                                Subscribe ? (
-                                                    <button onClick={togglesubscribe} class="cursor-pointer group  flex gap-1.5 mr-2 px-1 sm:px-5 py-2 bg-black  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
-                                                        Subscribed
-                                                    </button>
+                                                userdata?._id === video.channel._id ? (
+                                                    <Link to={`/user/userprofile/${userdata.username}`} >
+                                                        <button class="cursor-pointer group bg-blue-400 flex gap-1.5 mr-2 px-3 sm:px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
+                                                            Profile
+                                                        </button>
+                                                    </Link>
                                                 ) : (
-                                                    <button onClick={togglesubscribe} class="cursor-pointer group  flex gap-1.5 mr-1 sm:mr-5 sm:px-5 px-2 py-2 bg-red-700 bg-opacity-80 text-[#f1f1f1] rounded-3xl hover:bg-opacity-70 transition font-semibold shadow-md">
-                                                        Subscribe
+                                                    <button style={{ backgroundColor: Subscribe ? "black" : "red" }} onClick={togglesubscribe} class="cursor-pointer group  flex gap-1.5 mr-2 px-1 sm:px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
+                                                        {Subscribe ? "Subscribed" : "Subscribe"}
                                                     </button>
                                                 )
                                             }
@@ -493,19 +510,7 @@ function IndividualVideo() {
                                     </div>
                                     <div className="lg:hidden mt-5 z-50 -ml-2 sm:w-80 w-[100vw]">
 
-                                        <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={() => {
-                                            if (status === true) {
-                                                setviewcomments(true)
-                                            } else {
-                                                toast({
-                                                    title: "Signup & Login To Enjoy Comments",
-                                                    status: "error",
-                                                    duration: 3000,
-                                                    position: "top",
-                                                    isClosable: true,
-                                                })
-                                            }
-                                        }} >
+                                        <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={toggaleviewcomments} >
                                             <h2>Comments</h2>
                                             <div>
                                                 <svg viewBox="0 0 360 360" className="mt-1 dark:fill-white" width={15} xml:space="preserve">

@@ -4,7 +4,7 @@ import Loadingvideo from "../Components/Videosloading.jsx";
 import VideosLeyout from "../Components/Videosleylot.jsx";
 import Headertwo from "../Components/Header2.jsx";
 
-function Videos (){
+function Videos() {
     const [data, setdata] = useState([]);
     const [loading, setloading] = useState(true);
     const [error, seterror] = useState(false);
@@ -47,8 +47,8 @@ function Videos (){
     }, [loading, page, totalPages]);
 
     return (
-        <>  
-             <Headertwo/>
+        <>
+            <Headertwo />
             <VideosLeyout videodata={data} />
             {loading && <Loadingvideo totalno={9} />}
             <div ref={lastVideoElementRef} />

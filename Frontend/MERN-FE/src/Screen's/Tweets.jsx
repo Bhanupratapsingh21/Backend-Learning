@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import TweetsLeyout from "../Components/TweetsLeylot.jsx";
-import LoadingTweets from "../Components/TweetsLeylot.jsx"; // Assume you have a loading component for tweets
+import Loadingvideo from "../Components/Videosloading.jsx";
 import { useSelector } from 'react-redux'
 import Headertwo from "../Components/Header2.jsx";
 function Tweets() {
@@ -14,8 +14,9 @@ function Tweets() {
     const observer = useRef();
 
     const getData = async (page) => {
+        setLoading(true);
         try {
-            setLoading(true);
+
             const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/tweets/getblogsadv?q=newestfirst&limit=10&page=${page}`, { withCredentials: true });
             console.log(response.data.data.blogs)
             const tweets = response.data.data.blogs;
@@ -70,7 +71,7 @@ function Tweets() {
         <>
             <Headertwo />
             <TweetsLeyout filterondelete={filterondelete} tweetsdata={data} />
-            {loading && <LoadingTweets totalno={9} />}
+            {loading && <Loadingvideo totalno={9} />}
             <div ref={lastTweetElementRef} />
             {error && <div className="flex justify-center">Error loading tweets. Please try again later.</div>}
         </>
