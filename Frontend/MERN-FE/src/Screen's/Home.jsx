@@ -47,8 +47,8 @@ function Home() {
     }, [loading, page, totalPages]);
 
     return (
-        <>  
-            <Headertwo/>
+        <>
+            <Headertwo />
             <VideosLeyout videodata={data} />
             {loading && <Loadingvideo totalno={9} />}
             <div ref={lastVideoElementRef} />

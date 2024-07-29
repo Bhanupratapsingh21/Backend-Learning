@@ -25,8 +25,8 @@ function IndiVideo({ video, status, userdata }) {
         // console.log(currrentplaylist);
         if (currrentplaylist === "default") {
             return toast({
-                title: "It Is Already In Playlist",
-                description: "Hey Have You Seen Already Exist Sign ??",
+                title: "Pls Select The Playlist Your Want To Add",
+                description: "Hey Have You Seen The Select List?",
                 status: "error",
                 position: "top",
                 isClosable: true,
@@ -138,7 +138,7 @@ function IndiVideo({ video, status, userdata }) {
                 <div className="flex justify-between border shadow-md dark:border-gray-900 flex-col dark:bg-black sm:w-[320px] w-[100vw] -ml-4 sm:ml-0 pb-3 sm:rounded-xl">
                     <div onClick={() => handlenavigation(video._id)}>
                         <img
-                            className="shadow-md sm:rounded-xl h-48"
+                            className="shadow-md sm:rounded-xl sm:w-max w-[100vw] h-48"
                             src={video.thumbnail}
                             onError={(e) => e.target.src = 'http://res.cloudinary.com/dhvkjanwa/image/upload/v1720186851/zrirfteydyrh79xaua3q.jpg'}
                             alt="Video Thumbnail"
