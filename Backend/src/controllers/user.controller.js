@@ -487,59 +487,85 @@ const GetUserChannalProfile = asyncHandeler(async (req, res) => {
         .json(new ApiResponse(200, channal[0], "User channel fetched successfully"));
 });
 
-
 const getWatchHistory = asyncHandeler(async (req, res) => {
+    const { limit, page } = req.query;
+
+    const pageNumber = parseInt(page) || 1;
+    const limitOptions = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitOptions;
+
     const user = await User.aggregate([
         {
             $match: {
                 _id: new mongoose.Types.ObjectId(req.user._id)
-
             }
         },
+        { $skip: skip },
+        { $limit: limitOptions },
         {
             $lookup: {
                 from: "videos",
                 localField: "watchHistory",
                 foreignField: "_id",
-                as: "watchHistory",
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "owner",
-                            foreignField: "_id",
-                            as: "owner",
-                            pipeline: [
-                                {
-                                    $project: {
-                                        fullName: 1,
-                                        username: 1,
-                                        avater: 1,
-                                    }
-                                },
-                            ]
-                        }
-                    },
-                    {
-                        $addFields: {
-                            owner: {
-                                $first: "$owner",
-                            }
-                        }
-                    }
-                ]
+                as: "watchHistory"
+            }
+        },
+        {
+            $unwind: "$watchHistory"
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "watchHistory.owner",
+                foreignField: "_id",
+                as: "ownerDetails"
+            }
+        },
+        {
+            $unwind: "$ownerDetails"
+        },
+        {
+            $project: {
+                "watchHistory._id": 1,
+                "watchHistory.videoFile": 1,
+                "watchHistory.thumbnail": 1,
+                "watchHistory.tittle": 1,
+                "watchHistory.description": 1,
+                "watchHistory.duration": 1,
+                "watchHistory.views": 1,
+                "watchHistory.isPublished": 1,
+                "watchHistory.tags": 1,
+                "watchHistory.owner": 1,
+                "watchHistory.ownerusername": "$ownerDetails.username",
+                "watchHistory.owneravatar": "$ownerDetails.avatar.url",
+                "watchHistory.createdAt": 1,
+                "watchHistory.updatedAt": 1
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                watchHistory: { $push: "$watchHistory" }
             }
         }
-    ])
+    ]);
+
+    const totalVideos = req.user.watchHistory.length
+    const totalPages = Math.ceil(totalVideos / limitOptions);
 
     return res.status(200)
         .json(new ApiResponse(
             200,
-            user[0].watchHistory,
-            "Watch History Fetched Successfully"
-        ))
-})
-
+            {
+                page: pageNumber,
+                limit: limitOptions,
+                totalPages,
+                totalVideos,
+                watchHistory: user[0].watchHistory,
+            }
+            , "Watch History Fetched Successfully"
+        ));
+});
 
 export {
     registerUser,
