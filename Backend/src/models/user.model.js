@@ -35,16 +35,6 @@ const userSchema = new Schema(
                 required: true,
             }
         },
-        coverImage: {
-            url: {
-                type: String,
-                required: true,
-            },
-            public_id: {
-                type: String,
-                required: true,
-            }
-        },
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,

@@ -88,7 +88,7 @@ const getPlaylistById = asyncHandeler(async (req, res) => {
                         _id: "$videoDetails._id",
                         videoFile: "$videoDetails.videoFile",
                         thumbnail: "$videoDetails.thumbnail",
-                        title: "$videoDetails.title",
+                        tittle: "$videoDetails.tittle",
                         description: "$videoDetails.description",
                         duration: "$videoDetails.duration",
                         views: "$videoDetails.views",
