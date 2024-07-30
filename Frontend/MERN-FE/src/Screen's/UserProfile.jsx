@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router"
 import VideosLeyout from "../Components/Videosleylot";
-import Loadingvideo from "../Components/Videosloading";
+import Loadingvideo from "../Components/Videosloading.jsx";
 import TweetsLeyout from "../Components/TweetsLeylot.jsx";
-import LoadingTweets from "../Components/TweetsLeylot.jsx"; // 
+import { Link } from "react-router-dom";
+
 
 function Userprofile() {
 
@@ -117,7 +118,7 @@ function Userprofile() {
     }
 
     useEffect(() => {
-        if (profile._id) {
+        if (status._id) {
             getTweetData(tweetPage);
         }
     }, [tweetPage, status, profile]);
@@ -297,10 +298,12 @@ function Userprofile() {
 
                                     {
                                         profile._id === userdata?._id ? (
-                                            <button
-                                                class="flex text-center justify-center items-center rounded-md md:w-max w-[90vw] bg-blue-500 py-2 px-4 text-white transition-all duration-150 ease-in-out">
-                                                <h2>Edit Profile</h2>
-                                            </button>
+                                            <Link to={`/user/editprofile`}>
+                                                <button
+                                                    class="flex text-center justify-center items-center rounded-md md:w-max w-[90vw] bg-blue-500 py-2 px-4 text-white transition-all duration-150 ease-in-out">
+                                                    <h2>Edit Profile</h2>
+                                                </button>
+                                            </Link>
                                         ) : (
                                             <button
                                                 style={{ backgroundColor: Subscribe ? "black" : "red" }}
@@ -330,9 +333,9 @@ function Userprofile() {
                                 <TabPanel>
                                     <div className="sm:w-[70vw] w-[100vw] -ml-4 sm:ml-0 justify-center">
                                         <TweetsLeyout filterondelete={filterOnDelete} tweetsdata={tweetData} />
-                                        {tweetLoading && <LoadingTweets totalno={9} />}
+                                        {tweetLoading && <Loadingvideo totalno={9} />}
                                         <div ref={lastTweetElementRef} />
-                                        {tweetError && <div className="flex sm:w-[70vw] w-max justify-center">User Don't Have Any Tweets's</div>}
+                                        {tweetError && <div className="flex sm:w-[70vw]  w-max justify-center">User Don't Have Any Tweets's</div>}
                                     </div>
                                 </TabPanel>
                             </TabPanels>

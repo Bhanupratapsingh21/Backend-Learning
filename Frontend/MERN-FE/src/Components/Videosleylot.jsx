@@ -135,10 +135,10 @@ function IndiVideo({ video, status, userdata }) {
     return (
         <>
             <div key={video._id}>
-                <div className="flex justify-between border shadow-md dark:border-gray-900 flex-col dark:bg-black sm:w-[320px] w-[100vw] -ml-4 sm:ml-0 pb-3 sm:rounded-xl">
+                <div className="flex justify-between shadow-md flex-col dark:bg-black sm:w-[320px] w-[100vw] -ml-4 sm:ml-0 pb-3 sm:rounded-xl">
                     <div onClick={() => handlenavigation(video._id)}>
                         <img
-                            className="shadow-md sm:rounded-xl sm:w-max w-[100vw] h-48"
+                            className="shadow-md sm:rounded-xl sm:w-max w-[100vw] h-max sm:h-48"
                             src={video.thumbnail}
                             onError={(e) => e.target.src = 'http://res.cloudinary.com/dhvkjanwa/image/upload/v1720186851/zrirfteydyrh79xaua3q.jpg'}
                             alt="Video Thumbnail"

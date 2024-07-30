@@ -19,7 +19,7 @@ function AllRoutes() {
             <Route path="/" element={<Home />} />
             <Route path="/tweets" element={<Tweets />} />
             <Route path="/playlist" element={<Playlist />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/user/editprofile" element={<Profile />} />
             <Route path="/userchannelstatus" element={<Userchannalstatus />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/user/editprofile" element={<EdituserProfile />} />

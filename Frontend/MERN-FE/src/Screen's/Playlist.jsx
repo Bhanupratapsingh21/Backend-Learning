@@ -317,11 +317,11 @@ function Playlist() {
         if (userdata) {
             getPlaylist();
         }
-    }, [userdata]);
+    }, [userdata, status]);
 
     return (
-        <>  
-            <Headertwo/>
+        <>
+            <Headertwo />
             <div className="max-h-screen p-2 sm:p-4 dark:bg-black text-black dark:text-white">
                 <div className="flex sm:mt-6 mt-6 mb-6 w-[85vw] sm:w-[70vw] items-center justify-between">
                     <div>
@@ -431,7 +431,7 @@ function Playlist() {
                             </div>
                         </div>
                     </ModalBody>
-                   
+
                 </ModalContent>
             </Modal>
         </>

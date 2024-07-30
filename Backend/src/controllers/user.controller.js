@@ -68,7 +68,7 @@ const registerUser = asyncHandeler(async (req, res) => {
     }
 
     const avatar = await uploadOnCloudinary(avatarlocalpath)
-   
+
     // console.log(avatar)
     if (!avatar) {
         return res
@@ -306,15 +306,17 @@ const updateAccountDetails = asyncHandeler(async (req, res) => {
 
     if (!fullname || !email) {
         return res
-            .status(400)
-            .json(new ApiError(400, {}, "All fields are req"));
+            .status(300)
+            .json(new ApiError(300, {}, "All fields are req"));
     }
 
-    const exitedUser = await User.findOne({ email })
-    if (exitedUser) {
-        return res
-            .status(401)
-            .json(new ApiError(401, {}, "Email Already Existed"));
+    if (req.user.email !== email) {
+        const exitedUser = await User.findOne({ email })
+        if (exitedUser) {
+            return res
+                .status(301)
+                .json(new ApiError(301, {}, "Email Already Existed"));
+        }
     }
 
     const user = await User.findByIdAndUpdate(req.user?._id, {
