@@ -25,19 +25,21 @@ import {
 import axios from "axios"
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import VideosLeyout from "../Components/Videosleylot";
 import Loadingvideo from "../Components/Videosloading";
 import TweetsLeyout from "../Components/TweetsLeylot.jsx";
-
+import { useDispatch } from "react-redux";
+import { AuthLogout } from "../Store/features/Slice.js";
 function Profile() {
-
+    const navigate = useNavigate();
     const toast = useToast();
     const { status, userdata } = useSelector((state) => state.auth);
     const [error, seterror] = useState({
         status: false,
         msg: ""
     });
+
     const [tweetData, setTweetData] = useState([]);
     const [tweetLoading, setTweetLoading] = useState(true);
     const [tweetError, setTweetError] = useState(false);
@@ -47,7 +49,7 @@ function Profile() {
     const [loading, setlaoding] = useState(false);
     const [profile, setprofile] = useState({});
     const [form, setForm] = useState({ fullname: " ", email: "" });
-    const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '' });
+    const [passwordForm, setPasswordForm] = useState({ oldPassword: '', NewPassword: '' });
     const [avatar, setAvatar] = useState(null);
     const [error2, setError] = useState(null);
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -60,7 +62,7 @@ function Profile() {
     const observer = useRef();
     const lastVideoElementRef = useRef();
     const lastTweetElementRef = useRef();
-
+    const dispatch = useDispatch();
 
 
     const getdata = async (page) => {
@@ -182,6 +184,38 @@ function Profile() {
         }
     };
 
+    const handlelogout = async () => {
+
+        try {
+            const logout = await axios.post(`${import.meta.env.VITE_URL}/api/v1/users/logout`, {}, {
+                withCredentials: true
+            })
+            if (logout.data.success === true) {
+                localStorage.removeItem("refreshToken")
+                dispatch(AuthLogout());
+
+                toast({
+                    title: "Logged out successfully.",
+                    description: "You have been logged out.",
+                    status: "success",
+                    duration: 5000,
+                    position: "top",
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: "Error While Logout Pls Try Again.",
+                    description: "An Error Occured While Logout User.",
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         toast({
@@ -203,8 +237,10 @@ function Profile() {
                 position: "top",
                 isClosable: true
             })
-            OnClo
-            getuser();
+            onClose();
+            navigate('/');
+            handlelogout();
+
 
         } catch (error) {
             toast({
@@ -316,9 +352,6 @@ function Profile() {
                         </div>
                     </div>
                 </div>
-            }
-            {
-                error && <h2>{error.msg}</h2>
             }
             {
                 !loading && profile.avatar && !error.status && (
@@ -446,12 +479,12 @@ function Profile() {
                                                         <FormLabel>New Password</FormLabel>
                                                         <Input
                                                             type="password"
-                                                            name="newPassword"
-                                                            value={passwordForm.newPassword}
+                                                            name="NewPassword"
+                                                            value={passwordForm.NewPassword}
                                                             onChange={handlePasswordChange}
                                                         />
                                                     </FormControl>
-                                                    <Button mt={4} colorScheme="teal" type="submit">Change Password</Button>
+                                                    <Button mt={4} colorScheme="blue" type="submit">Change Password</Button>
                                                 </form>
                                             </TabPanel>
                                         </TabPanels>

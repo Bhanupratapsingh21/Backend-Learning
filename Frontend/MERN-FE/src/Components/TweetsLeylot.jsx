@@ -49,7 +49,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
     const fetchComments = async (page) => {
         try {
             setcommentsLoading(true);
-            const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${tweet._id}?limit=10&page=${page}`, { withCredentials: true });
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/comment/getcomments/${tweet._id}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
             //console.log(commentsData)
             //setComments(prevComments => [...prevComments, ...commentsData]);
@@ -232,7 +232,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
             } catch (error) {
                 toast({
                     title: "Error",
-                    description: "Error while subscribing. Please try again.",
+                    description: "Error while Subscribe. Please try again.",
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -241,7 +241,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
         } else {
             toast({
                 title: "Error",
-                description: "Please log in before subscribing.",
+                description: "Please log in To Subscribe.",
                 status: "error",
                 duration: 3000,
                 position: "top",
@@ -264,7 +264,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
                 //console.log(error)
                 toast({
                     title: "Error",
-                    description: "Error while liking the tweet. Please try again.",
+                    description: "Error while liking the Post. Please try again.",
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -273,7 +273,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
         } else {
             toast({
                 title: "Error",
-                description: "Please log in before liking the tweet.",
+                description: "Please log in before liking the Post.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -317,7 +317,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
                         </div>
                     </div>
                     <div className="border-t border-b border-y-gray-600  flex flex-col justify-center items-center max-w-[100vw]">
-                        <img className="aspect-w-16 center object-cover " src={tweet.coverImageURL.url} alt="Tweet" />
+                        <img onDoubleClick={toggleLike} className="aspect-w-16 center object-cover " src={tweet.coverImageURL.url} alt="Tweet" />
                     </div>
                     <div className="flex items-center gap-5 mx-4 mt-3 mb-2">
                         <div className="flex justify-center items-center">

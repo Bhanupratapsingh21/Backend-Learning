@@ -26,6 +26,8 @@ import {
 import CommentsLayout from "../Components/Comments.leylot";
 import LoadingComment from "../Components/Commentsloader";
 import Headertwo from "../Components/Header2";
+import VideosLeyout from "../Components/Videosleylot";
+import Loadingvideo from "../Components/Videosloading";
 function IndividualVideo() {
     const toast = useToast();
     // for comments 
@@ -54,7 +56,7 @@ function IndividualVideo() {
     const fetchComments = async (page) => {
         try {
             setcommentsLoading(true);
-            const response = await axios.get(`http://localhost:4000/api/v1/comment/getcomments/${videoid}?limit=10&page=${page}`, { withCredentials: true });
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/comment/getcomments/${videoid}?limit=10&page=${page}`, { withCredentials: true });
             const commentsData = response.data.data.Comments;
             //console.log(commentsData)
             //setComments(prevComments => [...prevComments, ...commentsData]);
@@ -318,6 +320,33 @@ function IndividualVideo() {
         getVideo();
     }, [videoid, status]);
 
+    const [data, setdata] = useState([]);
+    const [videoloading, setvideoloading] = useState(true);
+    const [videoerror, setvideoerror] = useState(false);
+
+    const getdata = async () => {
+        try {
+            setvideoloading(true);
+            setvideoerror(false);
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/videos/getvideobytegs?q=newestfirst&limit=10&page=1`, { tags: video?.video.tegs, thisvideo: video?.video._id }, { withCredentials: true });
+            const videos = response.data.data.videos;
+            setdata(prevData => [...prevData, ...videos]);
+            console.log(response.data.data)
+        } catch (error) {
+            console.log("Error", error);
+            setvideoerror(true);
+        } finally {
+            setvideoloading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (video?.video?.tegs) {
+            getdata();
+        }
+    }, [video]);
+
+
     return (
         <>
             <Headertwo />
@@ -344,7 +373,7 @@ function IndividualVideo() {
                                 {
                                     userdata?._id === video.video.owner && (
                                         <div>
-                                            <div class="flex justify-around mt-2 p-4 sm:w-[50vw] xl:w-80 lg:w-[25vw] items-center py-3">
+                                            <div class="flex justify-around mt-2 mb-4 p-4 sm:w-[50vw] xl:w-80 lg:w-[25vw] items-center py-3">
                                                 <Link to={`/editvideo/${videoid}`}>
                                                     <div class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
                                                         <svg class="w-6 stroke-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -362,7 +391,7 @@ function IndividualVideo() {
                                         </div>
                                     )
                                 }
-                                <div className="hidden lg:block xl:absolute z-50 xl:w-80 lg:w-[25vw] w-80 m-4">
+                                <div className="hidden lg:block lg:-mr-6 z-50 xl:w-80 lg:w-[25vw] w-80 -mt-4 m-4">
                                     <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={toggaleviewcomments} >
                                         <h2>Comments</h2>
                                         <div>
@@ -412,7 +441,7 @@ function IndividualVideo() {
                                     {
                                         viewcomment && (
                                             <>
-                                                <div className="h-[320px] absolute  overflow-y-scroll">
+                                                <div className="h-[220px]  overflow-y-scroll">
                                                     <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                     {commentsloading && <LoadingComment totalNo={9} />}
                                                     <div ref={lastCommentElementRef} />
@@ -434,7 +463,7 @@ function IndividualVideo() {
                                             <h2>
                                                 <AccordionButton>
                                                     <Box as='span' flex='1' textAlign='left'>
-                                                        <h2 className="text-xl w-[90vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
+                                                        <h2 className="text-xl w-[70vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
                                                         <h2 className="text-sm text-gray-800 dark:text-gray-400">{video.video.views} Views</h2>
 
                                                     </Box>
@@ -559,7 +588,7 @@ function IndividualVideo() {
                                             {
                                                 viewcomment && (
                                                     <>
-                                                        <div className=" flex flex-col justify-center items-left  dark:bg-black bg-white p-2 overflow-y-scroll">
+                                                        <div className=" flex  flex-col justify-center items-left  dark:bg-black bg-white -mt-6 max-h-[320px] overflow-y-scroll">
                                                             <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                             {commentsloading && <LoadingComment totalNo={9} />}
                                                             <div ref={lastCommentElementRef} />
@@ -570,7 +599,11 @@ function IndividualVideo() {
                                                 )
                                             }
                                         </div>
-
+                                    </div>
+                                    <div className="mt-4">
+                                        <VideosLeyout videodata={data} />
+                                        {videoloading && <Loadingvideo totalno={9} />}
+                                        {videoerror && <div className="flex justify-center items-center">This Video Don't Have Any Related Videos</div>}
                                     </div>
                                 </div>
                             </div>

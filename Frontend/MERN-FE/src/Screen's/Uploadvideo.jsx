@@ -141,7 +141,7 @@ function Upload() {
                     <TabPanel>
                         <div className="flex flex-col justify-center py-6 sm:px-6 lg:px-8">
                             <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                                <div className="bg-white dark:bg-black dark:text-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                                <div className="bg-white dark:bg-black dark:text-white text-black py-8 px-4 shadow sm:rounded-lg sm:px-10">
                                     <form method="POST" action="#" onSubmit={handleVideoUpload}>
                                         <h2 className="text-2xl mb-3 font-bold leading-tight">
                                             Upload Video
@@ -151,7 +151,7 @@ function Upload() {
                                                 Title
                                             </label>
                                             <div className="mt-1">
-                                                <input className="appearance-none block dark:bg-black dark:text-black text-white w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tittle" id="tittle" />
+                                                <input className="appearance-none block dark:bg-black dark:text-white text-black w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tittle" id="tittle" />
                                             </div>
                                         </div>
 
@@ -160,7 +160,7 @@ function Upload() {
                                                 Description
                                             </label>
                                             <div className="mt-1">
-                                                <textarea className="bg-gray-100 w-full border dark:bg-black dark:text-black text-white  rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" name="description" required></textarea>
+                                                <textarea className="bg-gray-100 w-full border dark:bg-black dark:text-white text-black  rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" name="description" required></textarea>
                                             </div>
                                         </div>
 
@@ -169,7 +169,7 @@ function Upload() {
                                                 Tags
                                             </label>
                                             <div className="mt-1">
-                                                <input className="appearance-none dark:bg-black dark:text-black text-white block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tegs" id="tegs" />
+                                                <input className="appearance-none dark:bg-black dark:text-white text-black block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required type="text" name="tegs" id="tegs" />
                                             </div>
                                         </div>
 

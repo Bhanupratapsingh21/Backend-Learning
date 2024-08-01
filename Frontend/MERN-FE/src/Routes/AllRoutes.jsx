@@ -11,25 +11,51 @@ import Upload from "../Screen's/Uploadvideo.jsx";
 import Editvideo from "../Screen's/VideoEditScreen.jsx";
 import Userchannalstatus from "../Screen's/UserChannalstatus.jsx";
 import Userprofile from "../Screen's/UserProfile.jsx";
-import EdituserProfile from "../Screen's/Edit-userprofile.jsx";
 import IndiPlaylist from "../Screen's/Individualplaylist.jsx";
+import PrivateRoute from "./PrivateAuth.jsx"
+import Searchforall from "../Screen's/Searchforall.jsx";
 function AllRoutes() {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tweets" element={<Tweets />} />
             <Route path="/playlist" element={<Playlist />} />
-            <Route path="/user/editprofile" element={<Profile />} />
-            <Route path="/userchannelstatus" element={<Userchannalstatus />} />
-            <Route path="/subscription" element={<Subscription />} />
-            <Route path="/user/editprofile" element={<EdituserProfile />} />
             <Route path="/videos" element={<Videos />} />
             <Route path="/upload" element={<Upload />} />
-            <Route path="/editvideo/:videoid" element={<Editvideo />} />
-            <Route path="/playlist/:playlistid" element={<IndiPlaylist />} />
             <Route path="/user/userprofile/:username" element={<Userprofile />} />
             <Route path="/video/:videoid" element={<IndividualVideo />} />
-            <Route path="/watch-history" element={<Userwatchhistory />} />
+            <Route path="/search" element={<Searchforall />} />
+            <Route path="/user/editprofile" element={
+                <PrivateRoute>
+                    <Profile />
+                </PrivateRoute>
+            } />
+            <Route path="/userchannelstatus" element={
+                <PrivateRoute>
+                    <Userchannalstatus />
+                </PrivateRoute>
+            } />
+            <Route path="/subscription" element={
+                <PrivateRoute>
+                    <Subscription />
+                </PrivateRoute>
+            } />
+
+            <Route path="/editvideo/:videoid" element={
+                <PrivateRoute>
+                    <Editvideo />
+                </PrivateRoute>
+            } />
+            <Route path="/playlist/:playlistid" element={
+                <PrivateRoute>
+                    <IndiPlaylist />
+                </PrivateRoute>
+            } />
+            <Route path="/watch-history" element={
+                <PrivateRoute>
+                    <Userwatchhistory />
+                </PrivateRoute>
+            } />
         </Routes>
     );
 }

@@ -55,9 +55,12 @@ function Userprofile() {
             getdata(page);
         }
     }, [page, profile]);
+
     useEffect(() => {
+        setTweetData([]);
+        setdata([])
         getuser();
-    }, []);
+    }, [username]);
 
 
     const lastVideoElementRef = useRef();
@@ -118,7 +121,7 @@ function Userprofile() {
     }
 
     useEffect(() => {
-        if (status._id) {
+        if (profile._id) {
             getTweetData(tweetPage);
         }
     }, [tweetPage, status, profile]);
@@ -146,6 +149,8 @@ function Userprofile() {
             setprofile(response.data.data)
             setSubscribe(response.data.data.isSubscribed);
             setsubscount(response.data.data.subscriberCount);
+            setTweetData([]);
+            setdata([]);
             console.log(response.data.data)
         } catch (error) {
             seterror({
