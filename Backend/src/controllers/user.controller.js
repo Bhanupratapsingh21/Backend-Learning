@@ -275,6 +275,11 @@ const refreshAccessToken = asyncHandeler(async (req, res) => {
 const changeCurrentPassword = asyncHandeler(async (req, res) => {
     const { oldPassword, NewPassword } = req.body
 
+    if (!NewPassword) {
+        return res
+            .status(301)
+            .json(new ApiError(301, {}, "Pls Provide New Password"));
+    }
     const user = await User.findById(req.user?._id)
 
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)

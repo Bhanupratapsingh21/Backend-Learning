@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 const app = express();
 
 dotenv.config({
-    path : "./env"
+    path: "./env"
 })
 /// use is used for middle wares or configration parts
 app.use(cors({
@@ -28,7 +28,7 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("Public"))
 app.use(cookieParser())
-app.get("/checkhealthstatus",healthcheck);
+app.get("/checkhealthstatus", healthcheck);
 
 // routes import 
 import userRouter from "./routes/user.routes.js"
@@ -39,14 +39,15 @@ import CommentRouter from "./routes/comments.routes.js"
 import PlaylistRouter from "./routes/playlist.routes.js"
 import SubscriptionRouter from "./routes/subscription.routes.js"
 import { healthcheck } from "./controllers/healthcheck.controller.js"
+import globalsearchRouter from "./routes/globalsearch.routes.js";
 
 // routes declaration
 app.use('/api/v1/users', userRouter);
 app.use("/api/v1/tweets", TweetsRouter);
 app.use("/api/v1/videos", Videorouter);
-app.use("/api/v1/like",LikeRouter)
-app.use("/api/v1/comment",CommentRouter);
+app.use("/api/v1/like", LikeRouter)
+app.use("/api/v1/comment", CommentRouter);
 app.use("/api/v1/playlist", PlaylistRouter);
-app.use("/api/v1/subscriptions",SubscriptionRouter);
-
+app.use("/api/v1/subscriptions", SubscriptionRouter);
+app.use("/api/v1/search",globalsearchRouter);
 export { app }

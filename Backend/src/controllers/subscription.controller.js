@@ -83,7 +83,7 @@ const getUserChannelSubscribers = asyncHandeler(async (req, res) => {
 
         const subscribers = await Subscription.aggregate(aggregationPipeline);
         if (!subscribers.length) {
-            return res.status(404).json(new ApiError(404, {}, "Not Found & 0 Subs"));
+            return res.status(404).json(new ApiError(404, {}, "0 Subscribers"));
         }
 
         const totalSubs = await Subscription.countDocuments({ channel: new mongoose.Types.ObjectId(channelId) });

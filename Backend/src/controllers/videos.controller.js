@@ -228,7 +228,7 @@ const handlegetVideoById = asyncHandeler(async (req, res) => {
 });
 
 const handlegetvideobytegs = asyncHandeler(async (req, res) => {
-    const { tags } = req.body;
+    const { tags, thisvideo } = req.body;
     if (!tags) {
         return res.status(401).json(new ApiError(401, {}, "Please provide at least one tag"));
     }
@@ -250,6 +250,7 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
         const aggregationPipeline = [
             {
                 $match: {
+                    _id: { $ne: new mongoose.Types.ObjectId(thisvideo) },
                     tegs: {
                         $regex: tagsArray.join('|'),
                         $options: 'i'
@@ -274,12 +275,12 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
                     _id: 1,
                     videoFile: 1,
                     thumbnail: 1,
-                    title: 1,
+                    tittle: 1,
                     description: 1,
                     duration: 1,
                     views: 1,
                     isPublished: 1,
-                    tags: 1,
+                    tegs: 1,
                     owner: 1,
                     ownerusername: "$ownerDetails.username",
                     owneravatar: "$ownerDetails.avatar.url",
@@ -292,6 +293,7 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
         const videos = await Video.aggregate(aggregationPipeline);
 
         const totalVideos = await Video.countDocuments({
+            _id: { $ne: new mongoose.Types.ObjectId(thisvideo) },
             tags: {
                 $regex: tagsArray.join('|'),
                 $options: 'i'
@@ -311,6 +313,7 @@ const handlegetvideobytegs = asyncHandeler(async (req, res) => {
         console.error('Error fetching videos:', error);
         return res.status(500).json(new ApiError(500, {}, "Internal Server Error Please Try Again"));
     }
+
 });
 
 const updateVideodetails = asyncHandeler(async (req, res) => {

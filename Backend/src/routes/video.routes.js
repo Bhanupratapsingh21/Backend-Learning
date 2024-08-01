@@ -40,7 +40,7 @@ Videorouter.patch("/update/videodetails/:id", verifyjwt, upload.fields(
 Videorouter.get("/getvideos", handlegetvideosbytimeline);
 Videorouter.get("/getvideosadv", handlegetvideoadv);
 Videorouter.get("/getvideo/:id", addedusertoreqdontstopresponse,handlegetVideoById);
-Videorouter.get("/getvideobytegs", handlegetvideobytegs);
+Videorouter.post("/getvideobytegs", handlegetvideobytegs);
 Videorouter.delete("/deletevideo/:id", verifyjwt, handledeleteVideo)
 Videorouter.get("/updateisPublished/:id", verifyjwt, togglePublishStatus);
 
