@@ -9,16 +9,18 @@ import { User } from "../models/user.model.js"
 const globalsearch = asyncHandeler(async (req, res) => {
     const { s } = req.query;
     const { limit, page } = req.query;
+
     if (!s) {
         return res.status(301).json(new ApiError(301, {}, "Empty Query"));
     }
+
     const pageNumber = parseInt(page) || 1;
     const limitOptions = parseInt(limit) || 10;
     const skip = (pageNumber - 1) * limitOptions;
 
-
     try {
-        const aggregationPipeline = [
+        // Video Search
+        const videoAggregationPipeline = [
             {
                 $match: {
                     tittle: {
@@ -31,41 +33,84 @@ const globalsearch = asyncHandeler(async (req, res) => {
             { $limit: limitOptions },
             {
                 $project: {
-                    videoFile: 0,
-                    description: 0,
-                    duration: 0,
-                    views: 0,
-                    isPublished: 0,
-                    tegs: 0,
-                    owner: 0,
-                    createdAt: 0,
-                    updatedAt: 0,
-                    thumbnail: 0
+                    tittle: 1
                 }
             }
         ];
+        const videos = await Video.aggregate(videoAggregationPipeline);
 
-        const keysdata = await Video.aggregate(aggregationPipeline);
-
-        const totalCount = await Video.countDocuments({
-            title: {
-                $regex: s,
-                $options: 'i'
-            }
+        const totalVideosCount = await Video.countDocuments({
+            tittle: { $regex: s, $options: 'i' }
         });
 
-        const totalPages = Math.ceil(totalCount / limitOptions);
+        // Tweet Search
+        const tweetAggregationPipeline = [
+            {
+                $match: {
+                    content: {
+                        $regex: s,
+                        $options: 'i' // Case-insensitive search
+                    }
+                }
+            },
+            { $skip: skip },
+            { $limit: limitOptions },
+            {
+                $project: {
+                    content: 1
+                }
+            }
+        ];
+        const tweets = await Tweet.aggregate(tweetAggregationPipeline);
 
-        if (!keysdata || keysdata.length === 0) {
-            return res.status(404).json(new ApiError(404, {}, "Not Found"));
-        }
+        const totalTweetsCount = await Tweet.countDocuments({
+            content: { $regex: s, $options: 'i' }
+        });
+
+        // User Search
+        const userAggregationPipeline = [
+            {
+                $match: {
+                    $or: [
+                        { username: { $regex: s, $options: 'i' } },
+                        { fullname: { $regex: s, $options: 'i' } }
+                    ]
+                }
+            },
+            { $skip: skip },
+            { $limit: limitOptions },
+            {
+                $project: {
+                    username: 1,
+                    fullname: 1
+                }
+            }
+        ];
+        const users = await User.aggregate(userAggregationPipeline);
+
+        const totalUsersCount = await User.countDocuments({
+            $or: [
+                { username: { $regex: s, $options: 'i' } },
+                { fullname: { $regex: s, $options: 'i' } }
+            ]
+        });
+
+        // Combine results
+        const combinedResults = [
+            ...videos.map(v => ({ type: 'video', ...v })),
+            ...tweets.map(t => ({ type: 'tweet', ...t })),
+            ...users.map(u => ({ type: 'user', ...u }))
+        ];
+
+        const totalCount = totalVideosCount + totalTweetsCount + totalUsersCount;
+        const totalPages = Math.ceil(totalCount / limitOptions);
 
         return res.status(200).json(new ApiResponse(200, {
             page: pageNumber,
             limit: limitOptions,
             totalPages,
             totalCount,
-            data: keysdata
+            data: combinedResults
         }, "Data fetched successfully"));
 
     } catch (error) {
