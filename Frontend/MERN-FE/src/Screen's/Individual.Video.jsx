@@ -419,7 +419,7 @@ function IndividualVideo() {
                                                 type="submit"
                                                 onClick={postcomments}
                                                 aria-label="Submit"
-                                                class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
+                                                class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition "
                                             >
                                                 {
                                                     commentpostloading ? (
@@ -592,7 +592,7 @@ function IndividualVideo() {
                                                             <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                             {commentsloading && <LoadingComment totalNo={9} />}
                                                             <div ref={lastCommentElementRef} />
-                                                            {commentserror && <div className="flex text-center w-[90vw] sm:w-max justify-center items-center">This Video Don't Have Any Comments</div>}
+                                                            {commentserror && <div className="flex text-center w-[100vw] mt-5 sm:w-max justify-center items-center">This Video Don't Have Any Comments</div>}
 
                                                         </div>
                                                     </>

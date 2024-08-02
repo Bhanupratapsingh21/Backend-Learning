@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Drawer,
     DrawerBody,
@@ -25,7 +25,7 @@ import { extendTheme } from "@chakra-ui/react";
 import { useDispatch } from 'react-redux'
 import axios from "axios"
 import { AuthLogin, AuthLogout } from '../Store/features/Slice.js';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 function Header() {
     const toast = useToast();
     const [loginerror, setlogainerror] = useState({
@@ -36,12 +36,60 @@ function Header() {
         status: false,
         msg: ""
     });
+    const navigate = useNavigate();
     const { status, userdata } = useSelector((state) => state.auth);
     const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
     const [authtypelogin, setauthtypelogin] = useState(true);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const dispatch = useDispatch();
+
+    const [searchText, setSearchText] = useState("");
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [debouncingData, setDebouncingData] = useState([]);
+    const [debounceTimeout, setDebounceTimeout] = useState(null);
+
+    // Ref to keep track of the latest searchText
+    const searchTextRef = useRef(searchText);
+    searchTextRef.current = searchText;
+
+    const getSearch = async () => {
+        setSearchLoading(true);
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/search?s=${searchTextRef.current}&limit=15&page=1`);
+            setDebouncingData(response.data.data.data);
+            // console.log(debouncingData);
+        } catch (err) {
+            setDebouncingData([])
+            // console.log(err);
+        } finally {
+            setSearchLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+            }
+        };
+    }, [debounceTimeout]);
+
+    const handleSearchText = (e) => {
+        const value = e.target.value;
+        setSearchText(value);
+
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+
+        const newTimeout = setTimeout(() => {
+            getSearch();
+        }, 300);
+
+        setDebounceTimeout(newTimeout);
+    };
+
     const theme = extendTheme({
         components: {
             Drawer: {
@@ -205,6 +253,8 @@ function Header() {
         }
     };
 
+
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -293,6 +343,20 @@ function Header() {
         }
     };
 
+    const handleclickondeboucneitem = (value) => {
+        navigate(`/search?s=${value}`)
+        setDebouncingData([]);
+
+    }
+    const handlesearchsubmit = (e) => {
+        e.preventDefault();
+        navigate(`/search?s=${searchText}`)
+        setDebouncingData([]);
+
+    }
+
+
+
     return (
         <>
             <header className="fixed w-full h-20 sm:ml-[570px]  bg-white dark:bg-black dark:text-white  z-10">
@@ -314,16 +378,31 @@ function Header() {
                             ></div>
                         </div>
                     </label>
-                    <div class="flex -mr-4 sm:mr-0  items-center justify-center xl:p-5">
+                    <div class="-mr-4 sm:mr-0  items-center justify-center xl:p-5">
                         <div>
                             <div class="flex sm:mr-5  border dark:border-slate-800 rounded-lg dark:bg-slate-700 bg-white border-gray-400">
-                                <div class="flex w-10 items-center justify-center rounded-tl-lg rounded-bl-lg border-r dark:border-slate-800 dark:bg-slate-700 border-gray-200 p-5">
+                               
+                                <form className='flex items-center justify-left' onSubmit={handlesearchsubmit}>
+                                    <input value={searchText} onChange={handleSearchText} placeholder="Search" type="text" className="md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] focus:border-transparent focus:outline-none dark:bg-slate-700 border-transparent mr-1 pl-2 dark:text-white text-black font-semibold outline-0" id="" />
+                                </form>
+                                <div onClick={handlesearchsubmit} class="flex w-10 items-center justify-center rounded-tr-lg rounded-br-lg border-l dark:border-slate-800 dark:bg-slate-700 border-gray-200 p-5">
                                     <svg viewBox="0 0 20 20" aria-hidden="true" class="pointer-events-none absolute w-5 fill-gray-500 transition">
                                         <path d="M16.72 17.78a.75.75 0 1 0 1.06-1.06l-1.06 1.06ZM9 14.5A5.5 5.5 0 0 1 3.5 9H2a7 7 0 0 0 7 7v-1.5ZM3.5 9A5.5 5.5 0 0 1 9 3.5V2a7 7 0 0 0-7 7h1.5ZM9 3.5A5.5 5.5 0 0 1 14.5 9H16a7 7 0 0 0-7-7v1.5Zm3.89 10.45 3.83 3.83 1.06-1.06-3.83-3.83-1.06 1.06ZM14.5 9a5.48 5.48 0 0 1-1.61 3.89l1.06 1.06A6.98 6.98 0 0 0 16 9h-1.5Zm-1.61 3.89A5.48 5.48 0 0 1 9 14.5V16a6.98 6.98 0 0 0 4.95-2.05l-1.06-1.06Z"></path>
                                     </svg>
                                 </div>
-                                <input placeholder="Search" type="text" className="md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] focus:border-transparent focus:outline-none dark:bg-slate-700 border-transparent mr-1 pl-2 dark:text-white text-black font-semibold outline-0" id="" />
                             </div>
+                        </div>
+                        <div className="searchbox flex flex-col ml-11 items-left absolute md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] z-51">
+                            {
+                                debouncingData.map((element) => (
+                                    <div onClick={() => handleclickondeboucneitem(element.tittle || element.username || element.content)} className='p-2 border rounded-lg'>
+                                        {element.tittle || element.username || element.content}
+                                    </div>
+                                ))
+                            }
+                            {
+                                searchLoading && <div className='p-2 border rounded-lg'>Loading...</div>
+                            }
                         </div>
                     </div>
                     <div className='sm:block hidden'>

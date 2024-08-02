@@ -49,10 +49,12 @@ function Home() {
     return (
         <>
             <Headertwo />
+            <div className="mb-4">
             <VideosLeyout videodata={data} />
             {loading && <Loadingvideo totalno={9} />}
             <div ref={lastVideoElementRef} />
             {error && <div className="flex justify-center items-center">Error loading videos. Please try again later.</div>}
+            </div>
         </>
     );
 }

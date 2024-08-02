@@ -384,7 +384,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
                                     type="submit"
                                     onClick={postcomments}
                                     aria-label="Submit"
-                                    class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition hover:bg-neutral-800"
+                                    class="flex aspect-square h-full items-center justify-center rounded-xl dark:bg-neutral-950 dark:text-white transition"
                                 >
                                     {
                                         commentpostloading ? (

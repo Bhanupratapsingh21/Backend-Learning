@@ -325,7 +325,7 @@ function Playlist() {
             <div className="max-h-screen p-2 sm:p-4 dark:bg-black text-black dark:text-white">
                 <div className="flex sm:mt-6 mt-6 mb-6 w-[85vw] sm:w-[70vw] items-center justify-between">
                     <div>
-                        <h2 className="text-4xl sm:text-7xl font-bold text-gray-100">
+                        <h2 className="text-4xl sm:text-7xl font-bold  text-black dark:text-gray-100">
                             Your Playlists
                         </h2>
                     </div>

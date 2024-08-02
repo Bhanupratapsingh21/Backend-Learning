@@ -7,6 +7,7 @@ import VideosLeyout from "../Components/Videosleylot";
 import Loadingvideo from "../Components/Videosloading.jsx";
 import TweetsLeyout from "../Components/TweetsLeylot.jsx";
 import { Link } from "react-router-dom";
+import Headertwo from "../Components/Header2.jsx";
 
 
 function Userprofile() {
@@ -201,6 +202,7 @@ function Userprofile() {
 
     return (
         <>
+            <Headertwo />
             {
                 loading && <div className="flex justify-center text-lg items-center">
                     <div className='flex w-[100vw]  text-white dark:bg-black justify-center items-center'>

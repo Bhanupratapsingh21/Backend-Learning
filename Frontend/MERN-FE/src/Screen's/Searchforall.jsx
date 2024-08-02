@@ -36,7 +36,7 @@ function Searchforall() {
             setVideodata(prev => [...prev, ...response.data.data.videos]);
             setHasMoreVideos(response.data.data.videos.length > 0);
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             setvideoerror(true);
         } finally {
             setvideoloading(false);
@@ -51,7 +51,7 @@ function Searchforall() {
             settweetdata(prev => [...prev, ...response.data.data.tweets]);
             setHasMoreTweets(response.data.data.tweets.length > 0);
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             settweeterror(true);
         } finally {
             settweetloading(false);
@@ -73,6 +73,23 @@ function Searchforall() {
     };
 
     useEffect(() => {
+        if (!searchQuery) return;
+
+        // Reset state when search query changes
+        setuserdata([]);
+        settweetdata([]);
+        setVideodata([]);
+        setUserPage(1);
+        setTweetPage(1);
+        setVideoPage(1);
+        setHasMoreUsers(true);
+        setHasMoreTweets(true);
+        setHasMoreVideos(true);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        if (!searchQuery) return;
+
         getusersdata(userPage);
         gettweetsdata(tweetPage);
         getvideodata(videoPage);
@@ -98,9 +115,10 @@ function Searchforall() {
     }, [videoloading, tweetloading, userloading, hasMoreVideos, hasMoreTweets, hasMoreUsers]);
 
     const filterondelete = (_id) => {
-        const newdata = data.filter(post => post._id !== _id)
+        const newdata = data.filter(post => post._id !== _id);
         settweetdata(newdata);
-    }
+    };
+
     return (
         <>
             <Tabs isFitted variant='enclosed'>
@@ -113,12 +131,12 @@ function Searchforall() {
                     <TabPanel>
                         <VideosLeyout videodata={Videodata} />
                         {videoloading && <Loadingvideo totalno={9} />}
-                        {videoerror && <div className="flex justify-center items-center">Not Found</div>}
+                        {videoerror || Videodata.length === 0 && <div className="flex justify-center items-center">Not Found</div>}
                     </TabPanel>
                     <TabPanel>
                         <TweetsLeyout filterondelete={filterondelete} tweetsdata={tweetdata} />
                         {tweetloading && <Loadingvideo totalno={9} />}
-                        {tweeterror && <div className="flex justify-center">Not Found</div>}
+                        {tweeterror || tweetdata.length === 0 && <div className="flex justify-center">Not Found</div>}
                     </TabPanel>
                     <TabPanel>
                         {
@@ -146,7 +164,7 @@ function Searchforall() {
                             ))
                         }
                         {userloading && <Loadingvideo totalno={9} />}
-                        {usererror && <div className="flex justify-center">Not Found</div>}
+                        {usererror || userdata.length === 0 && <div className="flex justify-center">Not Found</div>}
                     </TabPanel>
                 </TabPanels>
             </Tabs>
