@@ -11,7 +11,7 @@ dotenv.config({
 })
 /// use is used for middle wares or configration parts
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://merntube-by-bpss.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -49,5 +49,5 @@ app.use("/api/v1/like", LikeRouter)
 app.use("/api/v1/comment", CommentRouter);
 app.use("/api/v1/playlist", PlaylistRouter);
 app.use("/api/v1/subscriptions", SubscriptionRouter);
-app.use("/api/v1/search",globalsearchRouter);
+app.use("/api/v1/search", globalsearchRouter);
 export { app }
