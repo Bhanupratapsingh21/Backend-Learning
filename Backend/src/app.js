@@ -9,9 +9,14 @@ const app = express();
 dotenv.config({
     path: "./env"
 })
+const corsarry = [
+    process.env.CORS_ORIGIN1,
+    process.env.CORS_ORIGIN2,
+    process.env.CORS_ORIGIN3,
+]
 /// use is used for middle wares or configration parts
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://merntube-by-bpss.vercel.app'],
+    origin: corsarry,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],

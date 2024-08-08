@@ -22,6 +22,7 @@ import {
     Alert,
     AlertIcon,
 } from "@chakra-ui/react";
+import Headertwo from '../Components/Header2';
 import axios from "axios"
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -338,7 +339,8 @@ function Profile() {
 
 
     return (
-        <>
+        <>  
+            <Headertwo/>
             {
                 loading && <div className="flex justify-center text-lg items-center">
                     <div className='flex w-[100vw]  text-white dark:bg-black justify-center items-center'>
@@ -388,11 +390,11 @@ function Profile() {
                                     </div>
                                 </div>
                             </div>
-                            <div onClick={onOpen} class="w-100 flex flex-grow flex-col mt-3 items-start md:items-end justify-start">
+                            <div onClick={onOpen} class="w-100 sm:w-25 dark:bg-white dark:sm:bg-black sm:bg-white bg-black rounded-xl  flex flex-grow flex-col mt-3 items-start md:items-end justify-start">
                                 <div class="flex flex-row">
                                     <button
                                         class="flex text-center justify-center items-center rounded-md md:w-max w-[90vw] py-2 px-4 text-white transition-all duration-150 ease-in-out">
-                                        <svg class="w-6 stroke-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg class="w-6 dark:stroke-black dark:sm:stroke-white sm:stroke-black stroke-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                         </svg>

@@ -41,7 +41,7 @@ function Header() {
     const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
     const [authtypelogin, setauthtypelogin] = useState(true);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(true);
     const dispatch = useDispatch();
 
     const [searchText, setSearchText] = useState("");
@@ -118,11 +118,12 @@ function Header() {
     });
 
     useEffect(() => {
-        if (localStorage.getItem('theme') === 'dark') {
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light');
+            setIsDarkMode(false);
+        } else if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             setIsDarkMode(true);
-        } else {
-            toggleDarkMode();
         }
     }, []);
 
@@ -359,8 +360,8 @@ function Header() {
 
     return (
         <>
-            <header className="fixed w-full h-20 sm:ml-[570px]  bg-white dark:bg-black dark:text-white  z-10">
-                <div className="bg-white sm:w-[50vw] w-[100vw]  h-20 flex items-center justify-between px-2 sm:px-8 dark:bg-black dark:text-white text-black">
+            <header className="fixed w-full sm:ml-[570px]  bg-white dark:bg-black dark:text-white  z-10">
+                <div className="bg-white sm:w-[50vw] w-[100vw] px-2  h-20 flex items-center justify-between  sm:px-8 dark:bg-black dark:text-white text-black">
                     <label className='sm:hidden block -mr-4'>
                         <div
                             class="w-9 h-20 cursor-pointer flex flex-col items-center justify-center"
@@ -368,22 +369,22 @@ function Header() {
                         >
                             <input class="hidden peer" type="checkbox" />
                             <div
-                                class="w-[70%] h-[4px] dark:bg-white bg-black rounded-sm transition-all duration-300 origin-left translate-y-[0.9rem] "
+                                class="w-[70%] h-[4px] mb-2 dark:bg-white bg-black rounded-sm "
                             ></div>
                             <div
-                                class="w-[70%] h-[4px] dark:bg-white bg-black rounded-md transition-all duration-300 origin-center"
+                                class="w-[70%] h-[4px] mb-2 dark:bg-white bg-black rounded-md "
                             ></div>
                             <div
-                                class="w-[70%] h-[4px] dark:bg-white bg-black rounded-md transition-all duration-300 origin-left -translate-y-[0.9rem] "
+                                class="w-[70%] h-[4px] dark:bg-white bg-black rounded-md "
                             ></div>
                         </div>
                     </label>
                     <div class="-mr-4 sm:mr-0  items-center justify-center xl:p-5">
                         <div>
                             <div class="flex sm:mr-5  border dark:border-slate-800 rounded-lg dark:bg-slate-700 bg-white border-gray-400">
-                               
+
                                 <form className='flex items-center justify-left' onSubmit={handlesearchsubmit}>
-                                    <input value={searchText} onChange={handleSearchText} placeholder="Search" type="text" className="md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] focus:border-transparent focus:outline-none dark:bg-slate-700 border-transparent mr-1 pl-2 dark:text-white text-black font-semibold outline-0" id="" />
+                                    <input value={searchText} onChange={handleSearchText} placeholder="Search" type="text" className="md:w-[25vw] w-[55vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] focus:border-transparent focus:outline-none dark:bg-slate-700 border-transparent mr-1 pl-2 dark:text-white text-black font-semibold outline-0" id="" />
                                 </form>
                                 <div onClick={handlesearchsubmit} class="flex w-10 items-center justify-center rounded-tr-lg rounded-br-lg border-l dark:border-slate-800 dark:bg-slate-700 border-gray-200 p-5">
                                     <svg viewBox="0 0 20 20" aria-hidden="true" class="pointer-events-none absolute w-5 fill-gray-500 transition">
@@ -392,7 +393,7 @@ function Header() {
                                 </div>
                             </div>
                         </div>
-                        <div className="searchbox flex flex-col ml-11 items-left absolute md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] z-51">
+                        <div className="searchbox flex flex-col sm:ml-11 items-left absolute md:w-[25vw] sm:w-[25vw] lg:w-[40vw] xl:w-[50vw] z-51">
                             {
                                 debouncingData.map((element) => (
                                     <div onClick={() => handleclickondeboucneitem(element.tittle || element.username || element.content)} className='p-2 border rounded-lg'>
@@ -401,7 +402,7 @@ function Header() {
                                 ))
                             }
                             {
-                                searchLoading && <div className='p-2 border rounded-lg'>Loading...</div>
+                                searchLoading && <div className='p-2 w-full rounded-lg'>Loading...</div>
                             }
                         </div>
                     </div>
@@ -412,12 +413,12 @@ function Header() {
                         </label>
                     </div>
                     <article
-                        class="flex justify-center  left-0 "
+                        class="flex justify-center left-2 "
                     >
 
                         <label
                             for="profile"
-                            class="relative flex  w-full h-16 sm:p-4  group  flex-row gap-3 items-center justify-center text-black rounded-xl"
+                            class="relative flex  w-full h-16 sm:p-4   group  flex-row gap-3 items-center justify-center text-black rounded-xl"
                         >
 
                             {
@@ -485,19 +486,20 @@ function Header() {
                     placement='left'
                     onClose={onClose}
                     theme={theme}
+
                 >
                     <DrawerOverlay />
-                    <DrawerContent>
+                    <DrawerContent className='-ml-4 border-r-2 '>
                         <DrawerCloseButton />
                         <DrawerHeader>
-                            <Link to={"/"} className="flex items-center justify-center w-40 h-20">
+                            <Link to={"/"} className="flex items-center justify-left pl-5 w-40 h-20">
                                 <h1 className="text-4xl uppercase text-indigo-500">&lt;/&gt;</h1>
                             </Link>
                         </DrawerHeader>
 
-                        <DrawerBody>
-                            <ul className="flex flex-col py-4">
-                                <li className='flex items-center justify-between pl-12 mb-4'>
+                        <DrawerBody className="">
+                            <ul className="">
+                                <li className='flex px-4 justify-between items-center mb-4'>
                                     DarkMode :
                                     <label className="switch">
                                         <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
@@ -505,34 +507,34 @@ function Header() {
                                     </label>
                                 </li>
                                 <li>
-                                    <Link to={"/"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg dark:text-white"><i className="bx bx-home"></i></span>
+                                    <Link to={"/"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl justify-left px-4 items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12  text-lg dark:text-white"><i className="bx bx-home"></i></span>
                                         <span className="text-sm font-medium">Home</span>
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to={"/upload"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-bell"></i></span>
+                                    <Link to={"/upload"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl  px-4 items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-bell"></i></span>
                                         <span className="text-sm font-medium">Upload</span>
 
                                     </Link  >
                                 </li>
                                 <li>
-                                    <Link to={"/videos"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-music"></i></span>
+                                    <Link to={"/videos"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl  px-4 items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-music"></i></span>
                                         <span className="text-sm font-medium">Video's</span>
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to={"/tweets"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-drink"></i></span>
+                                    <Link to={"/tweets"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl  px-4 items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-drink"></i></span>
                                         <span className="text-sm font-medium">Tweet's</span>
                                     </Link>
                                 </li>
 
                                 <li>
-                                    <Link to={"/playlist"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                        <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
+                                    <Link to={"/playlist"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl  px-4 items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                        <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-chat"></i></span>
                                         <span className="text-sm font-medium">Playlist's</span>
                                     </Link>
                                 </li>
@@ -540,26 +542,26 @@ function Header() {
                                     status ? (
                                         <>
                                             <li>
-                                                <Link to={"/subscription"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                                    <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-shopping-bag"></i></span>
+                                                <Link to={"/subscription"} href="#" className="flex flex-row hover:border  px-4 border-gray-600 rounded-3xl items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                                    <span className="inline-flex items-center justify-center h-12 text-lg text-gray-400"><i className="bx bx-shopping-bag"></i></span>
                                                     <span className="text-sm font-medium">Subscription's</span>
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link to={"/watch-history"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                                    <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-chat"></i></span>
+                                                <Link to={"/watch-history"} href="#" className="flex flex-row hover:border  px-4 border-gray-600 rounded-3xl items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                                    <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-chat"></i></span>
                                                     <span className="text-sm font-medium">Watch-History</span>
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link to={"/userchannelstatus"} href="#" className="flex flex-row hover:border border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                                    <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-user"></i></span>
+                                                <Link to={"/userchannelstatus"} href="#" className="flex flex-row hover:border  px-4 border-gray-600 rounded-3xl items-center h-12 transform dark:text-white text-gray-900 hover:text-gray-500">
+                                                    <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-user"></i></span>
                                                     <span className="text-sm font-medium">Channal Status</span>
                                                 </Link>
                                             </li>
                                             <li>
-                                                <div onClick={handlelogout} href="#" className="flex flex-row hover:border hover:border-gray-600 rounded-3xl items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 dark:text-white text-gray-900 hover:text-gray-500">
-                                                    <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-400"><i className="bx bx-log-out"></i></span>
+                                                <div onClick={handlelogout} href="#" className="flex flex-row hover:border  px-4 hover:border-gray-600 rounded-3xl items-center h-12 transform  dark:text-white text-gray-900 hover:text-gray-500">
+                                                    <span className="inline-flex items-center justify-center h-12  text-lg text-gray-400"><i className="bx bx-log-out"></i></span>
                                                     <span className="text-sm font-medium">Logout</span>
                                                 </div  >
                                             </li>
@@ -567,6 +569,15 @@ function Header() {
 
                                     ) : null
                                 }
+                                <div className="text-blue-gray-600">
+                                    <footer className="py-2">
+                                        <div className="flex w-full flex-wrap items-center justify-center gap-6 pl-4 bottom-1 md:justify-between">
+                                            <p className="block antialiased font-sans text-sm leading-normal font-normal text-inherit"><span className='text-blue-500'>VIBESOCIAL</span> © 2024 Made With <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" aria-hidden="true" className="-mt-0.5 inline-block h-3.5 w-3.5">
+                                                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path>
+                                            </svg> by <a href="https://url-shortner-mern-uetd.onrender.com/Js0GzP6A" target="_blank" className="transition-colors hover:text-blue-500">BPSS </a></p>
+                                        </div>
+                                    </footer>
+                                </div>
                             </ul>
                         </DrawerBody>
                         <DrawerFooter>

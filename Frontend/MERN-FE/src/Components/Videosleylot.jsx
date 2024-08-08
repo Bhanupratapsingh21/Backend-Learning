@@ -144,17 +144,17 @@ function IndiVideo({ video, status, userdata }) {
                             alt="Video Thumbnail"
                         />
                     </div>
-                    <div className="flex justify-between items-center pt-2 px-2 h-20 space-x-2">
+                    <div className="flex justify-between items-center pt-2 px-2 h-15 space-x-2">
                         <Link className=' flex justify-left items-center' to={`/user/userprofile/${video.ownerusername}`}>
-                            <div className="flex w-10 mr-2">
+                            <div className="flex w-13 mr-2">
                                 <img className="h-8 w-8 rounded-full" src={video.owneravatar} alt="img" />
                             </div>
-                            <div className="space-y-1 flex flex-col justify-center max-w-[235px] left">
-                                <div className="dark:text-white text-md text-black overflow-hidden max-h-[50px] -mb-1">{video.tittle}</div>
-                                <div className="flex dark:text-gray-400 text-md items-center">
-                                    <div className="w-[115px] h-[25px] overflow-hidden">{video.ownerusername}</div>
-                                    <div className='px-2'> • </div>
-                                    <div className="h-[25px]">{video.views} views</div>
+                            <div className="space-y-1 flex flex-col justify-center max-w-[235px]">
+                                <div className="dark:text-white text-sm sm:text-base text-black overflow-hidden max-h-[44px] -mb-2 sm:-mb-0">{video.tittle}</div>
+                                <div className="flex dark:text-gray-400 justify-left text-sm sm:text-base items-center">
+                                    <span className="max-w-[115px] max-h-[25px]  overflow-hidden">{video.ownerusername}</span>
+                                    <span className='px-2'> • </span>
+                                    <span className="max-h-[25px]">{video.views} views</span>
                                 </div>
                             </div>
                         </Link>

@@ -104,19 +104,19 @@ function Comment({ comment, filterondeletecomments, status, userdata }) {
 
     return (
         <div key={comment._id} className="flex justify-center items-center mt-4 z-24 sm:min-w-72  gap-2 p-4">
-            
-                <Link to={`/user/userprofile/${comment.user.username}`} className="h-10 w-10 rounded-full">
-                    <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.username}'s avatar`} />
-                </Link>
-                <Link to={`/user/userprofile/${comment.user.username}`} className=" h-14 flex-1">
-                    <div className="mb-1 rounded-lg text-md">
-                        <h4>{comment.user.username}</h4>
-                    </div>
-                    <div className="z-30 max-h-14 overflow-y-auto  text-sm">
-                        <p>{comment.content}</p>
-                    </div>
-                </Link>
-            
+
+            <Link to={`/user/userprofile/${comment.user.username}`} className="h-10 w-10 rounded-full">
+                <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.username}'s avatar`} />
+            </Link>
+            <Link to={`/user/userprofile/${comment.user.username}`} className=" h-14 flex-1">
+                <div className="mb-1 rounded-lg text-md">
+                    <h4>{comment.user.username}</h4>
+                </div>
+                <div className="z-30 max-h-14 overflow-y-auto  text-sm">
+                    <p>{comment.content}</p>
+                </div>
+            </Link>
+
             <div onClick={likecomment} className='flex justify-evenly items-center w-12'>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -160,13 +160,19 @@ function Comment({ comment, filterondeletecomments, status, userdata }) {
                                 <TabPanel>
                                     <div className='flex flex-col justify-center items-center'>
                                         <div className="relative bottom-1 mb-2 mt-2">
-                                            <input
-                                                type="text"
-                                                placeholder="Add Comment"
-                                                className="block w-96 rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                                onChange={(e) => setCommentText(e.target.value)}
-                                                value={commentText}
-                                            />
+                                            <form onSubmit={e => {
+                                                e.preventDefault();
+                                                postComments();
+                                            }}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add Comment"
+                                                    className="block w-96 rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                    onChange={(e) => setCommentText(e.target.value)}
+                                                    value={commentText}
+                                                />
+                                            </form>
+
                                             <div className="absolute inset-y-1 right-6 flex justify-end">
                                                 {
                                                     loadingeditcomment ? (

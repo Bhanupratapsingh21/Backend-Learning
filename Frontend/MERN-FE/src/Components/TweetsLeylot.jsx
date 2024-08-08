@@ -285,7 +285,7 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
         <>
             <div key={tweet._id} className="dark:bg-black sm:rounded-md bg-white">
                 <div className="bg-white dark:bg-black w-[100vw] sm:w-96 -mt-0 border-y-gray-600">
-                    <div className="flex items-center px-4 py-3">
+                    <div className="flex items-center px-2 pl-6 py-3">
                         <Link to={`/user/userprofile/${tweet.createdBy.username}`} className='flex justify-center items-center'>
                             <img className="h-8 w-8 rounded-full" src={tweet.createdBy.profileimg} alt="Profile" />
                             <div className="ml-3">
@@ -366,19 +366,24 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
                             <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                             {commentsloading && <LoadingComment totalNo={9} />}
                             <div ref={lastCommentElementRef} />
-                            {commentserror && <div className="flex justify-center text-center items-center">This Video Don't Have Any Comments</div>}
+                            {commentserror && <div className="flex justify-center text-center mb-4 items-center">This Video Don't Have Any Comments</div>}
                         </div>
                     </DrawerBody>
 
                     <DrawerFooter>
                         <div class="relative flex left-2  flex-col items-center justify-center mb-2  -mt-4">
-                            <input
-                                type="text"
-                                placeholder="Add Comment"
-                                class=" sm:-ml-32 w-[90vw] sm:w-[30vw] pl-4 flex flex-col items-center justify-center  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                onChange={(e) => setcommenttext(e.target.value)}
-                                value={commenttext}
-                            />
+                            <form onSubmit={e => {
+                                e.preventDefault();
+                                postcomments();
+                            }}>
+                                <input
+                                    type="text"
+                                    placeholder="Add Comment"
+                                    class=" sm:-ml-32 w-[90vw] sm:w-[30vw] pl-4 flex flex-col items-center justify-center  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                    onChange={(e) => setcommenttext(e.target.value)}
+                                    value={commenttext}
+                                />
+                            </form>
                             <div class="absolute inset-y-1 right-4 flex justify-end">
                                 <button
                                     type="submit"
@@ -420,13 +425,18 @@ function Tweet({ tweet, filterondelete, userdata, status, toast }) {
                                 <TabPanel>
                                     <div className='flex flex-col justify-center items-center'>
                                         <div className="relative bottom-1 mb-2 mt-2">
-                                            <input
-                                                type="text"
-                                                placeholder="Add Comment"
-                                                className="block w-96 rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                                onChange={(e) => seteditposttext(e.target.value)}
-                                                value={editposttext}
-                                            />
+                                            <form onSubmit={e=>{
+                                                e.preventDefault();
+                                                posteditpost();
+                                            }}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add Comment"
+                                                    className="block w-96 rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                    onChange={(e) => seteditposttext(e.target.value)}
+                                                    value={editposttext}
+                                                />
+                                            </form>
                                             <div className="absolute inset-y-1 right-6 flex justify-end">
                                                 {
                                                     editpostloading ? (

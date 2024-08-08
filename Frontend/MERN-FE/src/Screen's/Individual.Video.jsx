@@ -370,27 +370,7 @@ function IndividualVideo() {
                         <div className="lg:flex ">
                             <VideoPlayer videopublicId={video.video.videoFile} thumbnail={video.video.thumbnail} />
                             <div>
-                                {
-                                    userdata?._id === video.video.owner && (
-                                        <div>
-                                            <div class="flex justify-around mt-2 mb-4 p-4 sm:w-[50vw] xl:w-80 lg:w-[25vw] items-center py-3">
-                                                <Link to={`/editvideo/${videoid}`}>
-                                                    <div class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
-                                                        <svg class="w-6 stroke-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                        </svg>
-                                                        <button class="font-semibold text-sm text-green-700">Edit</button>
-                                                    </div>
-                                                </Link>
-                                                <div onClick={deletevideoonOpen} class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
-                                                    <svg class="w-6 stroke-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                                    <button class="font-semibold text-sm text-red-700">Delete</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )
-                                }
+
                                 <div className="hidden lg:block lg:-mr-6 z-50 xl:w-80 lg:w-[25vw] w-80 -mt-4 m-4">
                                     <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={toggaleviewcomments} >
                                         <h2>Comments</h2>
@@ -407,13 +387,18 @@ function IndividualVideo() {
 
                                     </div>
                                     <div class="relative xl:w-80 mb-2 lg:w-[25vw] w-80 mt-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Add Comment"
-                                            class="block  lg:w-[24vw] w-80   rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                            onChange={(e) => setcommenttext(e.target.value)}
-                                            value={commenttext}
-                                        />
+                                        <form onSubmit={e => {
+                                            e.preventDefault();
+                                            postcomments();
+                                        }}>
+                                            <input
+                                                type="text"
+                                                placeholder="Add Comment"
+                                                class="block  lg:w-[24vw] w-80   rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                onChange={(e) => setcommenttext(e.target.value)}
+                                                value={commenttext}
+                                            />
+                                        </form>
                                         <div class="absolute inset-y-1 right-4 flex justify-end">
                                             <button
                                                 type="submit"
@@ -441,7 +426,7 @@ function IndividualVideo() {
                                     {
                                         viewcomment && (
                                             <>
-                                                <div className="h-[220px]  overflow-y-scroll">
+                                                <div className="h-[250px]  overflow-y-scroll">
                                                     <CommentsLayout filterondeletecomments={filterondeletecomments} commentData={comments} />
                                                     {commentsloading && <LoadingComment totalNo={9} />}
                                                     <div ref={lastCommentElementRef} />
@@ -456,6 +441,27 @@ function IndividualVideo() {
 
                         </div>
                         <div className=" w-[100vw] max-h-max bg-white dark:bg-black -ml-4 sm:w-[50vw] mt-1 ">
+                            {
+                                userdata?._id === video.video.owner && (
+                                    <div>
+                                        <div class="flex justify-around mt-2 mb-4 p-4 w-max sm:w-[50vw] items-center py-3">
+                                            <Link to={`/editvideo/${videoid}`}>
+                                                <div class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
+                                                    <svg class="w-6 stroke-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                    </svg>
+                                                    <button class="font-semibold text-sm text-green-700">Edit</button>
+                                                </div>
+                                            </Link>
+                                            <div onClick={deletevideoonOpen} class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
+                                                <svg class="w-6 stroke-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                                <button class="font-semibold text-sm text-red-700">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
                             <div className="px-2 py-0">
                                 <div>
                                     <Accordion className="border-transparent -pt-7 hover:bg-white dark:hover:bg-black -ml-3" allowToggle={true}>
@@ -463,7 +469,7 @@ function IndividualVideo() {
                                             <h2>
                                                 <AccordionButton>
                                                     <Box as='span' flex='1' textAlign='left'>
-                                                        <h2 className="text-xl w-[70vw] sm:w-96  overflow-hidden">{video.video.tittle}</h2>
+                                                        <h2 className="text-xl w-[70vw]  overflow-hidden">{video.video.tittle}</h2>
                                                         <h2 className="text-sm text-gray-800 dark:text-gray-400">{video.video.views} Views</h2>
 
                                                     </Box>
@@ -477,34 +483,10 @@ function IndividualVideo() {
                                             </AccordionPanel>
                                         </AccordionItem>
                                     </Accordion>
-
-
                                 </div>
-                                <div>
-                                    <div className="flex justify-left items-center pt-1 pb-2">
-                                        <Link className="flex justify-left items-center" to={`/user/userprofile/${video.channel.username}`}>
-                                            <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
-                                            <div className="px-2" >
-                                                <h2 className="text-md " >{video.channel.username}</h2>
-                                                <h2 className="text-sm text-gray-800 dark:text-gray-400">{subscount} Subscriber</h2>
-                                            </div>
-                                        </Link>
-                                        <div className="ml-3 sm:ml-0">
-                                            {
-                                                userdata?._id === video.channel._id ? (
-                                                    <Link to={`/user/userprofile/${userdata.username}`} >
-                                                        <button class="cursor-pointer group bg-blue-400 flex gap-1.5 mr-2 px-3 sm:px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
-                                                            Profile
-                                                        </button>
-                                                    </Link>
-                                                ) : (
-                                                    <button style={{ backgroundColor: Subscribe ? "black" : "red" }} onClick={togglesubscribe} class="cursor-pointer group  flex gap-1.5 mr-2 px-1 sm:px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
-                                                        {Subscribe ? "Subscribed" : "Subscribe"}
-                                                    </button>
-                                                )
-                                            }
-                                        </div>
-                                        <div class="flex ml-3 sm:ml-0 justify-center items-center">
+                                <div class="flex ml-1 mt-1 mb-3 flex-row justify-between">
+                                    <div class="flex flex-row">
+                                        <div class="w-max inline-flex items-center">
                                             {
                                                 likestate ? (
                                                     <>
@@ -512,7 +494,7 @@ function IndividualVideo() {
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             xmlnsXlink="http://www.w3.org/1999/xlink"
                                                             version="1.1"
-                                                            height="24"
+                                                            height="22"
                                                             viewBox="0 0 256 256"
                                                             xmlSpace="preserve"
                                                             onClick={togglelikevideo}
@@ -528,15 +510,54 @@ function IndividualVideo() {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <svg fill="#262626" onClick={togglelikevideo} className="dark:fill-white" height="24" viewBox="0 0 48 48" width="24"><path fill="red-600" d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path></svg>
+                                                        <svg fill="#262626" onClick={togglelikevideo} className="dark:fill-white" height="22" viewBox="0 0 48 48" width="22"><path fill="red-600" d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"></path></svg>
                                                     </>
                                                 )
                                             }
 
-
-                                            <div class="font-semibold ml-2 sm:ml-4 text-sm">{likecount} likes</div>
+                                            <span class="text-md ml-1 antialiased">{likecount} likes</span>
+                                        </div>
+                                        <div class="w-max inline-flex ml-4 items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            <span class="text-md ml-1 antialiased">{comments.length > 0 ? comments.length : null}</span>
+                                        </div>
+                                        <div class="w-max inline-flex ml-4 items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" height="24" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-xs ml-1 antialiased">On {video.video.createdAt.slice(0, 10)}</span>
                                         </div>
                                     </div>
+
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center pt-1 pb-2">
+                                        <Link className="flex justify-left items-center" to={`/user/userprofile/${video.channel.username}`}>
+                                            <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
+                                            <div className="px-2" >
+                                                <h2 className="text-md " >{video.channel.username}</h2>
+                                                <h2 className="text-sm text-gray-800 dark:text-gray-400">{subscount} Subscriber</h2>
+                                            </div>
+                                        </Link>
+                                        <div className="ml-3 sm:ml-0">
+                                            {
+                                                userdata?._id === video.channel._id ? (
+                                                    <Link to={`/user/userprofile/${userdata.username}`} >
+                                                        <button class="cursor-pointer group bg-blue-400 flex gap-1.5 mr-2 px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
+                                                            Profile
+                                                        </button>
+                                                    </Link>
+                                                ) : (
+                                                    <button style={{ backgroundColor: Subscribe ? "black" : "red" }} onClick={togglesubscribe} class="cursor-pointer group  flex gap-1.5 mr-2 px-5 py-2  text-[#f1f1f1] rounded-3xl bg-opacity-70 transition font-semibold shadow-md">
+                                                        {Subscribe ? "Subscribed" : "Subscribe"}
+                                                    </button>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+
                                     <div className="lg:hidden mt-5 z-50 -ml-2 sm:w-80 w-[100vw]">
 
                                         <div className="flex text-lg justify-between px-4 h-10 items-center cursor-pointer" onClick={toggaleviewcomments} >
@@ -553,13 +574,20 @@ function IndividualVideo() {
                                             </div>
                                         </div>
                                         <div class="relative bottom-1 mb-2 mt-2">
-                                            <input
-                                                type="text"
-                                                placeholder="Add Comment"
-                                                class="block sm:w-80 w-[99vw]  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
-                                                onChange={(e) => setcommenttext(e.target.value)}
-                                                value={commenttext}
-                                            />
+                                            <form onSubmit={e => {
+                                                e.preventDefault();
+                                                postcomments();
+                                            }}>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add Comment"
+                                                    class="block sm:w-80 w-[99vw]  rounded-2xl border dark:text-white  border-neutral-300 bg-transparent py-4 pl-6  text-base/6 text-neutral-950 ring-4 ring-transparent transition placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none focus:ring-neutral-950/5"
+                                                    onChange={(e) => setcommenttext(e.target.value)}
+                                                    value={commenttext}
+                                                />
+                                            </form>
+
+
                                             <div class="absolute inset-y-1 right-6 flex justify-end">
                                                 <button
                                                     type="submit"
