@@ -612,7 +612,7 @@ function IndividualVideo() {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div className="">
+                                        <div className="mt-6">
                                             {
                                                 viewcomment && (
                                                     <>

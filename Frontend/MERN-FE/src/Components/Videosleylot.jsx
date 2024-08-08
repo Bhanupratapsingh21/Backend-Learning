@@ -149,9 +149,9 @@ function IndiVideo({ video, status, userdata }) {
                             <div className="flex w-13 mr-2">
                                 <img className="h-8 w-8 rounded-full" src={video.owneravatar} alt="img" />
                             </div>
-                            <div className="space-y-1 flex flex-col justify-center max-w-[235px]">
-                                <div className="dark:text-white text-sm sm:text-base text-black overflow-hidden max-h-[44px] -mb-2 sm:-mb-0">{video.tittle}</div>
-                                <div className="flex dark:text-gray-400 justify-left text-sm sm:text-base items-center">
+                            <div className="space-y-1  flex flex-col justify-center max-w-[235px]">
+                                <div className="dark:text-white text-sm sm:text-base text-black overflow-hidden max-h-[45px] -mb-2 sm:-mb-0">{video.tittle}</div>
+                                <div className="flex dark:text-gray-400  justify-left text-sm sm:text-base items-center">
                                     <span className="max-w-[115px] max-h-[25px]  overflow-hidden">{video.ownerusername}</span>
                                     <span className='px-2'> • </span>
                                     <span className="max-h-[25px]">{video.views} views</span>
