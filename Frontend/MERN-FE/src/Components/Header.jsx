@@ -41,7 +41,7 @@ function Header() {
     const { isOpen: isOpenLogin, onOpen: onOpenLogin, onClose: onCloseLogin } = useDisclosure();
     const [authtypelogin, setauthtypelogin] = useState(true);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const [isDarkMode, setIsDarkMode] = useState(false);
     const dispatch = useDispatch();
 
     const [searchText, setSearchText] = useState("");
@@ -369,10 +369,10 @@ function Header() {
                         >
                             <input class="hidden peer" type="checkbox" />
                             <div
-                                class="w-[70%] h-[4px] mb-2 dark:bg-white bg-black rounded-sm "
+                                class="w-[70%] h-[4px] mb-1 dark:bg-white bg-black rounded-sm "
                             ></div>
                             <div
-                                class="w-[70%] h-[4px] mb-2 dark:bg-white bg-black rounded-md "
+                                class="w-[70%] h-[4px] mb-1 dark:bg-white bg-black rounded-md "
                             ></div>
                             <div
                                 class="w-[70%] h-[4px] dark:bg-white bg-black rounded-md "

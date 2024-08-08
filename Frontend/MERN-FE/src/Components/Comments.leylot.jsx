@@ -106,7 +106,7 @@ function Comment({ comment, filterondeletecomments, status, userdata }) {
         <div key={comment._id} className="flex justify-center items-center mt-4 z-24 sm:min-w-72  gap-2 p-4">
 
             <Link to={`/user/userprofile/${comment.user.username}`} className="h-10 w-10 rounded-full">
-                <img className='rounded-full' src={comment.user.avatar.url} alt={`${comment.user.username}'s avatar`} />
+                <img className='rounded-full w-10 h-10' src={comment.user.avatar.url} alt={`${comment.user.username}'s avatar`} />
             </Link>
             <Link to={`/user/userprofile/${comment.user.username}`} className=" h-14 flex-1">
                 <div className="mb-1 rounded-lg text-md">

@@ -444,7 +444,7 @@ function IndividualVideo() {
                             {
                                 userdata?._id === video.video.owner && (
                                     <div>
-                                        <div class="flex justify-around mt-2 mb-4 p-4 w-max sm:w-[50vw] items-center py-3">
+                                        <div class="flex justify-around mt-2 mb-4 p-4 w-[100vw] sm:w-[50vw] items-center py-3">
                                             <Link to={`/editvideo/${videoid}`}>
                                                 <div class="flex gap-2 text-gray-600 hover:scale-110 duration-200 hover:cursor-pointer">
                                                     <svg class="w-6 stroke-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -535,13 +535,13 @@ function IndividualVideo() {
                                 <div>
                                     <div className="flex justify-between items-center pt-1 pb-2">
                                         <Link className="flex justify-left items-center" to={`/user/userprofile/${video.channel.username}`}>
-                                            <img className="w-10 rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
-                                            <div className="px-2" >
+                                            <img className="w-8 h-8  rounded-full" src={video?.channel?.avatar?.url} alt="dwa" />
+                                            <div className="px-2 pb-2" >
                                                 <h2 className="text-md " >{video.channel.username}</h2>
                                                 <h2 className="text-sm text-gray-800 dark:text-gray-400">{subscount} Subscriber</h2>
                                             </div>
                                         </Link>
-                                        <div className="ml-3 sm:ml-0">
+                                        <div className="ml-3 pb-2 sm:ml-0">
                                             {
                                                 userdata?._id === video.channel._id ? (
                                                     <Link to={`/user/userprofile/${userdata.username}`} >
