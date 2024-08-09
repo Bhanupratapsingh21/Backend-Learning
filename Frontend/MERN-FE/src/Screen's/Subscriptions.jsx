@@ -117,7 +117,7 @@ function Subscription() {
                                                 <div className="relative sm:w-[65vw] flex justify-left items-center bg-clip-border rounded-xl dark:bg-black bg-white text-gray-700 dark:text-white shadow-md overflow-hidden xl:col-span-2">
                                                     <div className="relative w-max flex justify-between bg-clip-border rounded-xl overflow-hidden bg-transparent shadow-none m-0 items-center p-6">
                                                         <div>
-                                                            <img className="rounded-full mr-5 w-10" src={channel.ChannelDetails.avatar.url} alt="img" />
+                                                            <img className="rounded-full mr-5 h-10 w-10" src={channel.ChannelDetails.avatar.url} alt="img" />
                                                         </div>
                                                         <div>
                                                             <h6 className="antialiased tracking-normal flex gap-2 items-center font-sans text-base font-semibold leading-relaxed  mb-1">{channel.ChannelDetails.username}
@@ -140,7 +140,7 @@ function Subscription() {
                                                 <div className="relative sm:w-[65vw] flex justify-left items-center bg-clip-border rounded-xl dark:bg-black bg-white text-gray-700 dark:text-white shadow-md overflow-hidden xl:col-span-2">
                                                     <div className="relative w-max flex justify-between bg-clip-border rounded-xl overflow-hidden bg-transparent shadow-none m-0 items-center p-6">
                                                         <div>
-                                                            <img className="rounded-full mr-5 w-10" src={channel.ChannelDetails.avatar.url} alt="img" />
+                                                            <img className="rounded-full mr-5 h-10 w-10" src={channel.ChannelDetails.avatar.url} alt="img" />
                                                         </div>
                                                         <div>
                                                             <h6 className="antialiased tracking-normal flex gap-2 items-center font-sans text-base font-semibold leading-relaxed  mb-1">{channel.ChannelDetails.username}
@@ -178,7 +178,7 @@ function Subscription() {
                                                 <div className="relative sm:w-[65vw] flex justify-left items-center bg-clip-border rounded-xl dark:bg-black bg-white text-gray-700 dark:text-white shadow-md overflow-hidden xl:col-span-2">
                                                     <div className="relative w-max flex justify-between bg-clip-border rounded-xl overflow-hidden bg-transparent shadow-none m-0 items-center p-6">
                                                         <div>
-                                                            <img className="rounded-full mr-5 w-10" src={channel.SubscriberDetails.avatar.url} alt="img" />
+                                                            <img className="rounded-full mr-5  h-10 w-10 " src={channel.SubscriberDetails.avatar.url} alt="img" />
                                                         </div>
                                                         <div>
                                                             <h6 className="flex items-center gap-2 antialiased tracking-normal font-sans text-base font-semibold leading-relaxed  mb-1">{channel.SubscriberDetails.username}
@@ -201,7 +201,7 @@ function Subscription() {
                                                 <div className="relative sm:w-[65vw] flex justify-left items-center bg-clip-border rounded-xl dark:bg-black bg-white text-gray-700 dark:text-white shadow-md overflow-hidden xl:col-span-2">
                                                     <div className="relative w-max flex justify-between bg-clip-border rounded-xl overflow-hidden bg-transparent shadow-none m-0 items-center p-6">
                                                         <div>
-                                                            <img className="rounded-full mr-5 w-10" src={channel.SubscriberDetails.avatar.url} alt="img" />
+                                                            <img className="rounded-full mr-5  h-10 w-10" src={channel.SubscriberDetails.avatar.url} alt="img" />
                                                         </div>
                                                         <div>
                                                             <h6 className="flex items-center gap-2 antialiased tracking-normal font-sans text-base font-semibold leading-relaxed  mb-1">{channel.SubscriberDetails.username}
